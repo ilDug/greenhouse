@@ -1,18 +1,19 @@
 #include "dag_timer.h"
 
-void dagtimerNoop() {} // funzione segnaposto che non fa niente// esegue periodo del timer e le call back
+void timerNoop() {}  // funzione segnaposto che non fa niente// esegue periodo del timer e le call back
 
-DagTimer::DagTimer(unsigned long time_duration) {
-  duration = time_duration;
+DagTimer::DagTimer() {
   FIRED = 0;
   LOOP = true;
-  call_back = dagtimerNoop;
+  call_back = timerNoop;
 }
 
-void DagTimer::init() {
-  init(true);
+void DagTimer::init(unsigned long time_duration) {
+  init(time_duration, true);
 }
-void DagTimer::init(boolean repeat) {
+
+void DagTimer::init(unsigned long time_duration, boolean repeat) {
+  duration = time_duration;
   bookmark = millis();
   FIRED = 0;
   LOOP = repeat;
@@ -42,9 +43,6 @@ bool DagTimer::triggered() {
   return res;
 }
 
-bool DagTimer::clock(){
+bool DagTimer::clock() {
   return triggered();
 }
-
-
-
