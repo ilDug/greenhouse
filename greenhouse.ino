@@ -9,6 +9,11 @@
 #include "dag_button.h"
 #include "soil.h"
 #include "lumen.h"
+#include "termo_igro.h"
+
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
 
 /** costanti per l'illuminazione */
 const int LUMEN_THRESHOLD = 0;  // valore limite minimo del sensore di luminosità per l'accensione della luce.
@@ -16,8 +21,13 @@ const int LUMEN_PIN = 0;        // pin per la lettura del sensore di luminosità
 const int LAMP_PIN = 0;         // DIGITAL pin di attivazione della luce, collegato al relay.
 Lumen lumen(LAMP_PIN, LUMEN_PIN);
 
+
 /** costanti per la termo-igrometria */
-const int HT_PIN = 0;  // pin per la lettura del sensore di umidità e temperatura dell'aria.
+const int DHT_PIN = 0;  // pin per la lettura del sensore di umidità e temperatura dell'aria.
+// #define DHTTYPE DHT22   // DHT 22 (AM2302)
+#define DHTTYPE DHT21  // DHT 21 (AM2301)
+DHT dht(DHT_PIN, DHTTYPE);
+TermoIgro ht(&dht);
 
 /** costanti per il controllo dell'irrigazione */
 const int PUMP_PIN = 0;             // DIGITAL pin per l'avvio della pompa di irrigazione.
@@ -31,6 +41,7 @@ Soil soil(SOIL_HUM_PIN, TANK_LEVEL_PIN, PUMP_PIN, SOIL_TEMP_PIN, SOIL_HEAT_PIN);
 
 void setup() {
   Serial.begin(9600);
+  dht.begin();
 
   /** IRRIGAZIONE */
   pinMode(PUMP_PIN, OUTPUT);
@@ -38,8 +49,9 @@ void setup() {
   pinMode(SOIL_HUM_PIN, INPUT);
   pinMode(SOIL_TEMP_PIN, INPUT);
   pinMode(SOIL_HEAT_PIN, OUTPUT);
+  pinMode(LUMEN_PIN, INPUT);
+  pinMode(LAMP_PIN, OUTPUT);
 }
-
 
 
 void loop() {
@@ -54,4 +66,5 @@ void loop() {
   lumen.run(LUMEN_THRESHOLD);
 
   /** controllo termo-igrometria */
+  ht.run();
 }
