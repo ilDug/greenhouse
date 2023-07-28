@@ -1,9 +1,13 @@
 #include "lumen.h"
 #include "Arduino.h"
 
-Lumen::Lumen(int lampPin, int sensorPin) {
+
+Lumen::Lumen(int lampPin, int sensorPin)
+  : t() {
   LAMP_PIN = lampPin;
   SENS_PIN = sensorPin;
+  // DagTimer t();
+  t.init(1000);
 }
 
 
@@ -29,11 +33,14 @@ void Lumen::run(int threshold) {
       break;
 
     case AUTO:
-      int command = isDark() ? HIGH : LOW;
-      digitalWrite(LAMP_PIN, command);
+      if (t.clock()) {
+        int command = isDark() ? HIGH : LOW;
+        digitalWrite(LAMP_PIN, command);
+      }
       break;
   }
 }
+
 
 bool Lumen::isDark() {
   switch (STATUS) {

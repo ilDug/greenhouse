@@ -8,12 +8,13 @@
 #include "dag_timer.h"
 #include "dag_button.h"
 #include "soil.h"
+#include "lumen.h"
 
 /** costanti per l'illuminazione */
 const int LUMEN_THRESHOLD = 0;  // valore limite minimo del sensore di luminosità per l'accensione della luce.
-const int LUMEN_DELTA = 0;      // soglia del valore di luminosità per evitare l'isteresi della lampada.
 const int LUMEN_PIN = 0;        // pin per la lettura del sensore di luminosità.
-const int LIGHT_PIN = 0;        // pin per l'accensione della luce,  collegato a relay.
+const int LAMP_PIN = 0;         // DIGITAL pin di attivazione della luce, collegato al relay.
+Lumen lumen(LAMP_PIN, LUMEN_PIN);
 
 /** costanti per la termo-igrometria */
 const int HT_PIN = 0;  // pin per la lettura del sensore di umidità e temperatura dell'aria.
@@ -50,6 +51,7 @@ void loop() {
   soil.run(SOIL_HUM_THRESHOLD, SOIL_TEMP_THRESHOLD);
 
   /** controllo illuminazione */
+  lumen.run(LUMEN_THRESHOLD);
 
   /** controllo termo-igrometria */
 }
