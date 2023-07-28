@@ -9,7 +9,7 @@ Soil::Soil(int humSensPin, int tankLevelPin, int pumpPin, int tempSensPin, int h
   PUMP_PIN = pumpPin;
   SOIL_TEMP_PIN = tempSensPin;
   SOIL_HEAT_PIN = heatPin;
-  DagTimer wt();
+  // DagTimer wt();
 
   tempStatus = &TEMP_STATUS;
   humStatus = &HUM_STATUS;
