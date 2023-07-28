@@ -44,6 +44,7 @@ void setup() {
 void loop() {
 
   // PROCESSI //
+  /** check/manutenzione del sistema  */
 
   /** controllo suolo */
   soil.run(SOIL_HUM_THRESHOLD, SOIL_TEMP_THRESHOLD);
@@ -51,6 +52,4 @@ void loop() {
   /** controllo illuminazione */
 
   /** controllo termo-igrometria */
-
-  /** check/manutenzione del sistema  */
 }
