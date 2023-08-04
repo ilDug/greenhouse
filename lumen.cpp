@@ -56,5 +56,16 @@ bool Lumen::isDark() {
 }
 
 int Lumen::lumenValue() {
-  return analogRead(SENS_PIN);
+  int n, i;
+  float s, m;
+  while (n <= 10 && i < 16) {
+    i++;
+    int v = analogRead(SENS_PIN);
+    if (!isnan(v)) {
+      s += v;
+      n++;
+    }
+  }
+  m = s / n;
+  return m;
 }

@@ -97,11 +97,33 @@ bool Soil::isTankEmpty() {
 }
 
 int Soil::soilHumValue() {
-  return analogRead(SOIL_HUM_PIN);
+  int n, i;
+  float s, m;
+  while (n <= 10 && i < 16) {
+    i++;
+    int v = analogRead(SOIL_HUM_PIN);
+    if (!isnan(v)) {
+      s += v;
+      n++;
+    }
+  }
+  m = s / n;
+  return m;
 }
 
 int Soil::soilTempValue() {
-  return analogRead(SOIL_TEMP_PIN);
+  int n, i;
+  float s, m;
+  while (n <= 10 && i < 16) {
+    i++;
+    int v = analogRead(SOIL_TEMP_PIN);
+    if (!isnan(v)) {
+      s += v;
+      n++;
+    }
+  }
+  m = s / n;
+  return m;
 }
 
 
