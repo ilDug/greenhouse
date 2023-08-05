@@ -22,6 +22,7 @@ private:
   int PUMP_PIN;             // DIGITAL pin per l'avvio della pompa di irrigazione.
   int TANK_LEVEL_PIN;       // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio. (HIGH => empty?????)
   int SOIL_HUM_PIN;         // ANALOG  pin per la lettura dell'umidità del suolo.
+  int SOIL_HUM_ENABLE_PIN;  // DIGITAL pin per l'attivazione del transistore che abilita il sensore
   int SOIL_HUM_THRESHOLD;   // valore limite dell'umidità per innescare l'irrigazione. su scala 0-1023
   int SOIL_TEMP_PIN;        // ANALOG pin del sensore di temperatura del terreno
   int SOIL_TEMP_THRESHOLD;  // limite di temperatura per innescare il riscaldamento
@@ -30,21 +31,22 @@ private:
 
   const int dt = 1;                                // delta temperatura per controllare l'isteresi
   const int du = 100;                              // delta dell'umidità per controllare l'isteresi
+  const unsigned long humSensorFreq = (3000);      // tempo del periodo tra una lettura e l'altra
   const unsigned long wateringTime = (1000 * 20);  // il tempo minimo per cui la pompa deve rimanere attiva in millisecondi
-  DagTimer wt;                                     // il timer non bloccante attivo per la durata dell'irrigazione
+  DagTimer wateringTmr;                            // il timer non bloccante attivo per la durata dell'irrigazione
+  DagTimer humSenTmr;                              // timer non bloccante per la lettura dell'umidità
 
-  void setHumidityThreshold(int thresold);     // imposta la soglia di umidità minima sotto la quale il terreno ha bisogno di acqua.
-  void setTemperatureThreshol(int threshold);  // imposta la soglia di tmperatura minima sotto la quale si ativa il riscaldamento.
-  int soilHumValue();                          // valore del sensore su scala  0-1023. Legge il valore del sensore di umidità
-  int soilTempValue();                         // legge il valore del sensore di temperatura del terreno
-  void watering();                             // avvia l'irrigazione
-  void heating();                              // avvia il riscaldamento in base alal soglia impostata.
+
+  int soilHumValue();   // valore del sensore su scala  0-1023. Legge il valore del sensore di umidità
+  int soilTempValue();  // legge il valore del sensore di temperatura del terreno
+  void watering();      // avvia l'irrigazione
+  void heating();       // avvia il riscaldamento in base alal soglia impostata.
 
   bool waterLock = false;  // se impostato il blocco , impedisce l'irrigazione
 
 public:
-  Soil(int humSensPin, int tankLevelPin, int pumpPin, int tempSensPin, int heatPin);  // constructor
-  void run(int humThreshold, int tempThreshold);                                      // avvia il controller del suolo. impostando la soglia di umidità e la soglia di temperatura.
+  Soil(int humSensPin, int humSensEnablePin, int tankLevelPin, int pumpPin, int tempSensPin, int heatPin);  // constructor
+  void run(int humThreshold, int tempThreshold);                                                            // avvia il controller del suolo. impostando la soglia di umidità e la soglia di temperatura.
 
   HUM_STATES* humStatus;
   TEMP_STATES* tempStatus;

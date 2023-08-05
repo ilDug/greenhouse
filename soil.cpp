@@ -2,14 +2,14 @@
 #include "soil.h"
 #include "dag_timer.h"
 
-Soil::Soil(int humSensPin, int tankLevelPin, int pumpPin, int tempSensPin, int heatPin)
-  : wt() {
+Soil::Soil(int humSensPin, int humSensEnablePin, int tankLevelPin, int pumpPin, int tempSensPin, int heatPin)
+  : wateringTmr(), humSenTmr() {
   SOIL_HUM_PIN = humSensPin;
+  SOIL_HUM_ENABLE_PIN = humSensEnablePin;
   TANK_LEVEL_PIN = tankLevelPin;
   PUMP_PIN = pumpPin;
   SOIL_TEMP_PIN = tempSensPin;
   SOIL_HEAT_PIN = heatPin;
-  // DagTimer wt();
 
   tempStatus = &TEMP_STATUS;
   humStatus = &HUM_STATUS;
@@ -19,7 +19,7 @@ Soil::Soil(int humSensPin, int tankLevelPin, int pumpPin, int tempSensPin, int h
 void Soil::run(int humThreshold, int tempThreshold) {
   //controlla il serbatoio
   if (isTankEmpty()) HUM_STATUS = EMPTY_TANK;
-  setHumidityThreshold(humThreshold);
+  SOIL_HUM_THRESHOLD = humThreshold;  // imposta la soglia di umidità minima sotto la quale il terreno ha bisogno di acqua.
 
   switch (HUM_STATUS) {
 
@@ -42,17 +42,8 @@ void Soil::run(int humThreshold, int tempThreshold) {
       break;
   }
 
-  setTemperatureThreshol(tempThreshold);
+  SOIL_TEMP_THRESHOLD = tempThreshold;  // imposta la soglia di tmperatura minima sotto la quale si ativa il riscaldamento.
   heating();
-}
-
-
-void Soil::setHumidityThreshold(int thresold) {
-  SOIL_HUM_THRESHOLD = thresold;
-}
-
-void Soil::setTemperatureThreshol(int threshold) {
-  SOIL_TEMP_THRESHOLD = threshold;
 }
 
 
@@ -65,13 +56,13 @@ void Soil::watering() {
 
   if (HUM_STATUS != WATERING) {
     // se lo stato precedente non era in fase di irriazione
-    HUM_STATUS = WATERING;          // imposta lo stato in irrigazione
-    wt.init(wateringTime, false);   //inizzializza il timer eseguito una volta sola
-    digitalWrite(PUMP_PIN, HIGH);   //accende la pompa
-  } else {                          // siamo nel caso in cui la pompa è già partita
-    if (wt.clock() && !isDry()) {   // quando il timer scade
-      digitalWrite(PUMP_PIN, LOW);  //spegne la pompa
-      HUM_STATUS = HEALTHY;         // imposta provvisoriamento lo stato in HEALHY  e lo ricontrolla immediatamente
+    HUM_STATUS = WATERING;                  // imposta lo stato in irrigazione
+    wateringTmr.init(wateringTime, false);  //inizzializza il timer eseguito una volta sola
+    digitalWrite(PUMP_PIN, HIGH);           //accende la pompa
+  } else {                                  // siamo nel caso in cui la pompa è già partita
+    if (wateringTmr.clock() && !isDry()) {  // quando il timer scade
+      digitalWrite(PUMP_PIN, LOW);          //spegne la pompa
+      HUM_STATUS = HEALTHY;                 // imposta provvisoriamento lo stato in HEALHY  e lo ricontrolla immediatamente
     }
   }
 }
@@ -81,12 +72,12 @@ bool Soil::isDry() {
     case HEALTHY:
     case EMPTY_TANK:
       // il valore di umidità scende sotto la soglia diminuita del delta.
-      return (soilHumValue() < (SOIL_HUM_THRESHOLD - du));
+      return (soilHumValue() < (SOIL_HUM_THRESHOLD + du));
 
     case DRY:
     case WATERING:
       //  il valore di umidità sale sopra la soglia aumentata del delta.
-      return (soilHumValue() < (SOIL_HUM_THRESHOLD + du));
+      return (soilHumValue() < (SOIL_HUM_THRESHOLD - du));
   }
 }
 
@@ -97,32 +88,34 @@ bool Soil::isTankEmpty() {
 }
 
 int Soil::soilHumValue() {
-  int n, i;
-  float s, m;
+  digitalWrite(SOIL_HUM_ENABLE_PIN, HIGH);
+
+  int n = 0, i = 0, m = 0, s = 0;
   while (n <= 10 && i < 16) {
     i++;
     int v = analogRead(SOIL_HUM_PIN);
-    if (!isnan(v)) {
+    if (isnan(v) == false) {
       s += v;
       n++;
     }
   }
-  m = s / n;
+  m = int(s / n);
+
+  digitalWrite(SOIL_HUM_ENABLE_PIN, LOW);
   return m;
 }
 
 int Soil::soilTempValue() {
-  int n, i;
-  float s, m;
+  int n = 0, i = 0, m = 0, s = 0;
   while (n <= 10 && i < 16) {
     i++;
     int v = analogRead(SOIL_TEMP_PIN);
-    if (!isnan(v)) {
+    if (isnan(v) == false) {
       s += v;
       n++;
     }
   }
-  m = s / n;
+  m = int(s / n);
   return m;
 }
 
@@ -130,10 +123,10 @@ int Soil::soilTempValue() {
 bool Soil::isCold() {
   switch (TEMP_STATUS) {
     case HOT:
-      return (soilTempValue() < (SOIL_TEMP_THRESHOLD - dt));
+      return (soilTempValue() < (SOIL_TEMP_THRESHOLD + dt));
       break;
     case COLD:
-      return (soilTempValue() < (SOIL_TEMP_THRESHOLD + dt));
+      return (soilTempValue() < (SOIL_TEMP_THRESHOLD - dt));
       break;
   }
 }

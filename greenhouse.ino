@@ -32,7 +32,9 @@ DagButton btnLamp(8, LOW);
 /** costanti per il controllo dell'irrigazione */
 // const int PUMP_PIN = 0;             // DIGITAL pin per l'avvio della pompa di irrigazione.
 // const int TANK_LEVEL_PIN = 0;       // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio.
-// const int SOIL_HUM_PIN = 0;         // ANALOG  pin per la lettura dell'umidità del suolo.
+const int SOIL_HUM_PIN = A1;        // ANALOG  pin per la lettura dell'umidità del suolo.
+const int SOIL_HUM_ENABLE_PIN = 9;  // DIGITAL pin per l'attivazione del transistore che abilita il sensore
+
 // const int SOIL_TEMP_PIN = 0;        // ANALOG pin del sensore di temperatura del terreno
 // const int SOIL_HEAT_PIN = 0;        // DIGITAL pin per attivare il riscaldamento
 // const int SOIL_TEMP_THRESHOLD = 0;  // limite di temperatura per innescare il riscaldamento
@@ -47,7 +49,8 @@ void setup() {
   /** IRRIGAZIONE */
   // pinMode(PUMP_PIN, OUTPUT);
   // pinMode(TANK_LEVEL_PIN, INPUT_PULLUP);
-  // pinMode(SOIL_HUM_PIN, INPUT);
+  pinMode(SOIL_HUM_PIN, INPUT);
+  pinMode(SOIL_HUM_ENABLE_PIN, OUTPUT);
   // pinMode(SOIL_TEMP_PIN, INPUT);
   // pinMode(SOIL_HEAT_PIN, OUTPUT);
   pinMode(LUMEN_PIN, INPUT);
@@ -61,9 +64,28 @@ void loop() {
 
   /** controllo suolo */
   // soil.run(SOIL_HUM_THRESHOLD, SOIL_TEMP_THRESHOLD);
+  digitalWrite(SOIL_HUM_ENABLE_PIN, HIGH);
+  delay(100);
+
+  int n = 0, i = 0, m = 0, s = 0;
+  while (n <= 10 && i < 16) {
+    i++;
+    int v = analogRead(SOIL_HUM_PIN);
+    if (isnan(v) == false) {
+      s += v;
+      n++;
+    }
+  }
+  m = int(s / n);
+  Serial.print("<SOIL>: ");
+  Serial.println(m);
+  digitalWrite(SOIL_HUM_ENABLE_PIN, LOW);
+  delay(2000);
+
+
 
   /** controllo illuminazione */
-  lumen.run(LUMEN_THRESHOLD);
+  //lumen.run(LUMEN_THRESHOLD);
   btnLamp.onPress(lampToggle);
   btnLamp.onLongPress(lampAuto, 3000);
 
@@ -79,8 +101,6 @@ void lampToggle() {
 
 
 /** attiva l'auto mode della lampada*/
-void lampAuto(){
+void lampAuto() {
   lumen.AUTO_MODE = true;
 }
-
-
