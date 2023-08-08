@@ -7,9 +7,11 @@
 
 #include "dag_timer.h"
 #include "dag_button.h"
-#include "soil.h"
+// #include "soil.h"
+#include "moisture.h"
 #include "lumen.h"
-#include "termo_igro.h"
+#include "air.h"
+#include "geo.h"
 
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
@@ -18,7 +20,7 @@
 /** costanti per l'illuminazione */
 const int LUMEN_THRESHOLD = 400;  // valore limite minimo del sensore di luminosità per l'accensione della luce.
 const int LUMEN_PIN = A0;         // pin per la lettura del sensore di luminosità.
-const int LAMP_PIN = 13;          // DIGITAL pin di attivazione della luce, collegato al relay.
+const int LAMP_PIN = 8;           // DIGITAL pin di attivazione della luce, collegato al relay.
 Lumen lumen(LAMP_PIN, LUMEN_PIN, &Serial);
 DagButton btnLamp(8, LOW);
 
@@ -30,16 +32,18 @@ DagButton btnLamp(8, LOW);
 // TermoIgro ht(&dht);
 
 /** costanti per il controllo dell'irrigazione */
+const int SOIL_HUM_PIN = A1;         // ANALOG  pin per la lettura dell'umidità del suolo.
+const int SOIL_HUM_ENABLE_PIN = 9;   // DIGITAL pin per l'attivazione del transistore che abilita il sensore
+const int SOIL_HUM_THRESHOLD = 400;  // valore limite dell'umidità per innescare l'irrigazione.
+Moisture moisture(SOIL_HUM_PIN, SOIL_HUM_ENABLE_PIN, &Serial);
+
 // const int PUMP_PIN = 0;             // DIGITAL pin per l'avvio della pompa di irrigazione.
 // const int TANK_LEVEL_PIN = 0;       // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio.
-const int SOIL_HUM_PIN = A1;        // ANALOG  pin per la lettura dell'umidità del suolo.
-const int SOIL_HUM_ENABLE_PIN = 9;  // DIGITAL pin per l'attivazione del transistore che abilita il sensore
 
-// const int SOIL_TEMP_PIN = 0;        // ANALOG pin del sensore di temperatura del terreno
-// const int SOIL_HEAT_PIN = 0;        // DIGITAL pin per attivare il riscaldamento
-// const int SOIL_TEMP_THRESHOLD = 0;  // limite di temperatura per innescare il riscaldamento
-// const int SOIL_HUM_THRESHOLD = 0;   // valore limite dell'umidità per innescare l'irrigazione.
-// Soil soil(SOIL_HUM_PIN, TANK_LEVEL_PIN, PUMP_PIN, SOIL_TEMP_PIN, SOIL_HEAT_PIN);
+const int SOIL_TEMP_PIN = A2;        // ANALOG pin del sensore di temperatura del terreno
+const int SOIL_HEAT_PIN = 7;         // DIGITAL pin per attivare il riscaldamento, collegato al relay
+const int SOIL_TEMP_THRESHOLD = 20;  // limite di temperatura per innescare il riscaldamento
+Geo eartTemp(SOIL_HEAT_PIN, &Serial);
 
 void setup() {
   Serial.begin(9600);
@@ -51,37 +55,27 @@ void setup() {
   // pinMode(TANK_LEVEL_PIN, INPUT_PULLUP);
   pinMode(SOIL_HUM_PIN, INPUT);
   pinMode(SOIL_HUM_ENABLE_PIN, OUTPUT);
-  // pinMode(SOIL_TEMP_PIN, INPUT);
   // pinMode(SOIL_HEAT_PIN, OUTPUT);
+
+  /** umidità terreno */
   pinMode(LUMEN_PIN, INPUT);
   pinMode(LAMP_PIN, OUTPUT);
+
+  /** TEMPERATURA DEL TERRENO*/
+  pinMode(SOIL_TEMP_PIN, INPUT);
+
 }
 
 
 void loop() {
+  delay(10);
   // PROCESSI //
   /** check/manutenzione del sistema  */
 
   /** controllo suolo */
   // soil.run(SOIL_HUM_THRESHOLD, SOIL_TEMP_THRESHOLD);
-  digitalWrite(SOIL_HUM_ENABLE_PIN, HIGH);
-  delay(100);
-
-  int n = 0, i = 0, m = 0, s = 0;
-  while (n <= 10 && i < 16) {
-    i++;
-    int v = analogRead(SOIL_HUM_PIN);
-    if (isnan(v) == false) {
-      s += v;
-      n++;
-    }
-  }
-  m = int(s / n);
-  Serial.print("<SOIL>: ");
-  Serial.println(m);
-  digitalWrite(SOIL_HUM_ENABLE_PIN, LOW);
-  delay(2000);
-
+  moisture.run(SOIL_HUM_THRESHOLD);
+  eartTemp.run(SOIL_TEMP_THRESHOLD);
 
 
   /** controllo illuminazione */
