@@ -7,7 +7,7 @@
 
 #include "dag_timer.h"
 #include "dag_button.h"
-// #include "soil.h"
+#include "soil.h"
 #include "moisture.h"
 #include "lumen.h"
 #include "air.h"
@@ -37,13 +37,17 @@ const int SOIL_HUM_ENABLE_PIN = 9;   // DIGITAL pin per l'attivazione del transi
 const int SOIL_HUM_THRESHOLD = 400;  // valore limite dell'umidità per innescare l'irrigazione.
 Moisture moisture(SOIL_HUM_PIN, SOIL_HUM_ENABLE_PIN, &Serial);
 
-// const int PUMP_PIN = 0;             // DIGITAL pin per l'avvio della pompa di irrigazione.
-// const int TANK_LEVEL_PIN = 0;       // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio.
 
 const int SOIL_TEMP_PIN = A2;        // ANALOG pin del sensore di temperatura del terreno
-const int SOIL_HEAT_PIN = 7;         // DIGITAL pin per attivare il riscaldamento, collegato al relay
 const int SOIL_TEMP_THRESHOLD = 20;  // limite di temperatura per innescare il riscaldamento
-Geo eartTemp(SOIL_HEAT_PIN, &Serial);
+Geo earthTemp(SOIL_TEMP_PIN, &Serial);
+
+
+const int PUMP_PIN = 0;        // DIGITAL pin per l'avvio della pompa di irrigazione.
+const int TANK_LEVEL_PIN = 0;  // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio.
+const int SOIL_HEAT_PIN = 7;   // DIGITAL pin per attivare il riscaldamento, collegato al relay
+Soil soil(TANK_LEVEL_PIN, PUMP_PIN, SOIL_HEAT_PIN, &Serial);
+
 
 void setup() {
   Serial.begin(9600);
@@ -51,19 +55,20 @@ void setup() {
   // dht.begin();
 
   /** IRRIGAZIONE */
-  // pinMode(PUMP_PIN, OUTPUT);
-  // pinMode(TANK_LEVEL_PIN, INPUT_PULLUP);
+  pinMode(PUMP_PIN, OUTPUT);
+  pinMode(TANK_LEVEL_PIN, INPUT_PULLUP);
+  pinMode(SOIL_HEAT_PIN, OUTPUT);
+
+  /** UMIDITÀ DEL TERRENO */
   pinMode(SOIL_HUM_PIN, INPUT);
   pinMode(SOIL_HUM_ENABLE_PIN, OUTPUT);
-  // pinMode(SOIL_HEAT_PIN, OUTPUT);
 
-  /** umidità terreno */
+  /** ILLUMIAZIONE */
   pinMode(LUMEN_PIN, INPUT);
   pinMode(LAMP_PIN, OUTPUT);
 
   /** TEMPERATURA DEL TERRENO*/
   pinMode(SOIL_TEMP_PIN, INPUT);
-
 }
 
 
@@ -73,17 +78,17 @@ void loop() {
   /** check/manutenzione del sistema  */
 
   /** controllo suolo */
-  // soil.run(SOIL_HUM_THRESHOLD, SOIL_TEMP_THRESHOLD);
   moisture.run(SOIL_HUM_THRESHOLD);
-  eartTemp.run(SOIL_TEMP_THRESHOLD);
+  earthTemp.run(SOIL_TEMP_THRESHOLD);
+  soil.run(&moisture, &earthTemp);
 
 
   /** controllo illuminazione */
-  //lumen.run(LUMEN_THRESHOLD);
+  lumen.run(LUMEN_THRESHOLD);
   btnLamp.onPress(lampToggle);
   btnLamp.onLongPress(lampAuto, 3000);
 
-  /** controllo termo-igrometria */
+  /** controllo termo-igrometria dell'aria*/
   // ht.run();
 }
 

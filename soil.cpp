@@ -1,39 +1,52 @@
 #include "Arduino.h"
 #include "soil.h"
 #include "dag_timer.h"
+#include "moisture.h"
+#include "geo.h"
 
-Soil::Soil(int humSensPin, int humSensEnablePin, int tankLevelPin, int pumpPin, int tempSensPin, int heatPin)
-  : wateringTmr(), humSenTmr() {
-  SOIL_HUM_PIN = humSensPin;
-  SOIL_HUM_ENABLE_PIN = humSensEnablePin;
+Soil::Soil(int tankLevelPin, int pumpPin, int heatPin, Stream* _srl)
+  : tmr() {
+  srl = _srl;
   TANK_LEVEL_PIN = tankLevelPin;
   PUMP_PIN = pumpPin;
-  SOIL_TEMP_PIN = tempSensPin;
   SOIL_HEAT_PIN = heatPin;
-
-  tempStatus = &TEMP_STATUS;
-  humStatus = &HUM_STATUS;
 }
 
 
-void Soil::run(int humThreshold, int tempThreshold) {
-  //controlla il serbatoio
-  if (isTankEmpty()) HUM_STATUS = EMPTY_TANK;
-  SOIL_HUM_THRESHOLD = humThreshold;  // imposta la soglia di umidità minima sotto la quale il terreno ha bisogno di acqua.
+void Soil::run(Moisture* m, Geo* g) {
+  // controller del pad riscaldante
+  if (g->STATUS == COLD) {
+    digitalWrite(SOIL_HEAT_PIN, HIGH);
+  } else if (g->STATUS == HOT) {
+    digitalWrite(SOIL_HEAT_PIN, LOW);
+  }
 
-  switch (HUM_STATUS) {
+  //controlla il serbatoio
+  if (isTankEmpty()) STATUS = EMPTY_TANK;
+
+  switch (STATUS) {
 
     case WATERING:
-      watering();
+      if (waterLock) {                // se è attivo il blocco del'irrigazione
+        digitalWrite(PUMP_PIN, LOW);  //spegne la pompa
+      } else {
+        if (tmr.clock() && m->STATUS == WET) {  // quando il timer scade
+          digitalWrite(PUMP_PIN, LOW);          //spegne la pompa
+          STATUS = HEALTHY;                     // imposta provvisoriamento lo stato in HEALHY  e lo ricontrolla immediatamente
+        }
+      }
       break;
 
     case HEALTHY:
-      if (isDry()) HUM_STATUS = DRY;
-      break;
-
-    case DRY:
-      if (!isDry()) HUM_STATUS = HEALTHY;
-      else watering();
+      if (waterLock) {                // se è attivo il blocco del'irrigazione
+        digitalWrite(PUMP_PIN, LOW);  //spegne la pompa
+      } else {
+        if (m->STATUS == DRY) {
+          STATUS = WATERING;              // imposta lo stato in irrigazione
+          tmr.init(wateringTime, false);  //inizzializza il timer eseguito una volta sola
+          digitalWrite(PUMP_PIN, HIGH);   //accende la pompa
+        }
+      }
       break;
 
     case EMPTY_TANK:
@@ -41,115 +54,15 @@ void Soil::run(int humThreshold, int tempThreshold) {
       // ACCENDE l'allarme
       break;
   }
-
-  SOIL_TEMP_THRESHOLD = tempThreshold;  // imposta la soglia di tmperatura minima sotto la quale si ativa il riscaldamento.
-  heating();
-}
-
-
-void Soil::watering() {
-  if (waterLock) {                  // se è attivo il blocco del'irrigazione
-    digitalWrite(PUMP_PIN, LOW);    //spegne la pompa
-    if (isDry()) HUM_STATUS = DRY;  // ricontrollo lo stato
-    return;
-  }
-
-  if (HUM_STATUS != WATERING) {
-    // se lo stato precedente non era in fase di irriazione
-    HUM_STATUS = WATERING;                  // imposta lo stato in irrigazione
-    wateringTmr.init(wateringTime, false);  //inizzializza il timer eseguito una volta sola
-    digitalWrite(PUMP_PIN, HIGH);           //accende la pompa
-  } else {                                  // siamo nel caso in cui la pompa è già partita
-    if (wateringTmr.clock() && !isDry()) {  // quando il timer scade
-      digitalWrite(PUMP_PIN, LOW);          //spegne la pompa
-      HUM_STATUS = HEALTHY;                 // imposta provvisoriamento lo stato in HEALHY  e lo ricontrolla immediatamente
-    }
-  }
-}
-
-bool Soil::isDry() {
-  switch (HUM_STATUS) {
-    case HEALTHY:
-    case EMPTY_TANK:
-      // il valore di umidità scende sotto la soglia diminuita del delta.
-      return (soilHumValue() < (SOIL_HUM_THRESHOLD + du));
-
-    case DRY:
-    case WATERING:
-      //  il valore di umidità sale sopra la soglia aumentata del delta.
-      return (soilHumValue() < (SOIL_HUM_THRESHOLD - du));
-  }
 }
 
 
 bool Soil::isTankEmpty() {
   int lowLevel = digitalRead(TANK_LEVEL_PIN);
-  return lowLevel == HIGH;
-}
-
-int Soil::soilHumValue() {
-  digitalWrite(SOIL_HUM_ENABLE_PIN, HIGH);
-
-  int n = 0, i = 0, m = 0, s = 0;
-  while (n <= 10 && i < 16) {
-    i++;
-    int v = analogRead(SOIL_HUM_PIN);
-    if (isnan(v) == false) {
-      s += v;
-      n++;
-    }
-  }
-  m = int(s / n);
-
-  digitalWrite(SOIL_HUM_ENABLE_PIN, LOW);
-  return m;
-}
-
-int Soil::soilTempValue() {
-  int n = 0, i = 0, m = 0, s = 0;
-  while (n <= 10 && i < 16) {
-    i++;
-    int v = analogRead(SOIL_TEMP_PIN);
-    if (isnan(v) == false) {
-      s += v;
-      n++;
-    }
-  }
-  m = int(s / n);
-  return m;
+  return lowLevel == LOW;
 }
 
 
-bool Soil::isCold() {
-  switch (TEMP_STATUS) {
-    case HOT:
-      return (soilTempValue() < (SOIL_TEMP_THRESHOLD + dt));
-      break;
-    case COLD:
-      return (soilTempValue() < (SOIL_TEMP_THRESHOLD - dt));
-      break;
-  }
-}
-
-void Soil::heating() {
-  if (isCold()) {
-    TEMP_STATUS = COLD;
-    digitalWrite(SOIL_HEAT_PIN, HIGH);
-  }
-  if (!isCold()) {
-    TEMP_STATUS = HOT;
-    digitalWrite(SOIL_HEAT_PIN, LOW);
-  }
-}
-
-bool Soil::isWatering() {
-  return HUM_STATUS == WATERING;
-}
-
-bool Soil::isHeating() {
-  return TEMP_STATUS == COLD;
-}
-
-void Soil::lockWatering(bool lock) {
-  waterLock = lock;
+void Soil::lockWatering() {
+  waterLock = !waterLock;
 }
