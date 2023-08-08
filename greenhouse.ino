@@ -103,3 +103,6 @@ void lampToggle() {
 void lampAuto() {
   lumen.AUTO_MODE = true;
 }
+
+
+
