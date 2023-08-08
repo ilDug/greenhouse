@@ -1,4 +1,4 @@
-#include "termo_igro.h"
+#include "air.h"
 
 TermoIgro::TermoIgro(DHT* _dht)
   : timer() {
