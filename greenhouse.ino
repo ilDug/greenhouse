@@ -17,6 +17,10 @@
 #include <DHT.h>
 #include <DHT_U.h>
 
+#include <Wire.h>
+#include "LCD03.h"
+
+
 /** costanti per l'illuminazione */
 const int LUMEN_THRESHOLD = 400;  // valore limite minimo del sensore di luminosità per l'accensione della luce.
 const int LUMEN_PIN = A0;         // pin per la lettura del sensore di luminosità.
@@ -49,6 +53,15 @@ const int SOIL_HEAT_PIN = 7;   // DIGITAL pin per attivare il riscaldamento, col
 Soil soil(TANK_LEVEL_PIN, PUMP_PIN, SOIL_HEAT_PIN, &Serial);
 
 
+const int SET_THS_TEMP = 0;  // pin del potenziometro per l'impostazione della soglia di temperatura suolo
+const int SET_THS_HUM = 0;   // pin del potenziometro per l'impostazione della soglia di umidità terreno
+const int SET_THS_LUX = 0;   // pin del potenziometro per l'impostazione della soglia di luminosità
+
+
+LCD03 lcd; // Create new LCD03 instance
+
+
+
 void setup() {
   Serial.begin(9600);
   Serial.println("Inizializzazione DAG GREENHOUSE");
@@ -69,13 +82,34 @@ void setup() {
 
   /** TEMPERATURA DEL TERRENO*/
   pinMode(SOIL_TEMP_PIN, INPUT);
+
+  /** POTENZIOMETRI */
+  pinMode(SET_THS_TEMP, INPUT);
+  pinMode(SET_THS_HUM, INPUT);
+  pinMode(SET_THS_LUX, INPUT);
+
+
+  //LCD
+  lcd.begin(16, 2); // inizializza LCD 
+  lcd.backlight();
+  lcd.home();
+  lcd.print("DAG Greenhouse v0.0.1");
+  delay(3000);
+  lcd.clear();
+  lcd.noBacklight();
 }
 
 
 void loop() {
   delay(10);
   // PROCESSI //
+  /** lettura dei potenziometri */
+  SOIL_TEMP_THRESHOLD = analogRead(SET_THS_TEMP);
+  SOIL_HUM_THRESHOLD = analogRead(SET_THS_HUM);
+  LUMEN_THRESHOLD = analogRead(SET_THS_LUX);
+
   /** check/manutenzione del sistema  */
+
 
   /** controllo suolo */
   moisture.run(SOIL_HUM_THRESHOLD);
@@ -90,6 +124,10 @@ void loop() {
 
   /** controllo termo-igrometria dell'aria*/
   // ht.run();
+
+
+  /** display */
+  
 }
 
 
@@ -103,6 +141,3 @@ void lampToggle() {
 void lampAuto() {
   lumen.AUTO_MODE = true;
 }
-
-
-

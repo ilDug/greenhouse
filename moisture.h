@@ -18,7 +18,7 @@ private:
   int THRESHOLD;                              // valore limite dell'umidità per innescare l'irrigazione.
   int moistureValue();                        // valore del sensore su scala  0-1023. Legge il valore del sensore di umidità
   const int delta = 75;                        // delta dell'umidità per controllare l'isteresi (in percentuale)
-  const unsigned long frequency = 1000 * 5;  // frequenza di aggiornamento della lettura del sdensore di umidità
+  const unsigned long frequency = 1000 * 5;  // frequenza di aggiornamento della lettura del sensore di umidità
   bool isDry();                               // controlla se il terreno ha bisogno di acqua
 
 
