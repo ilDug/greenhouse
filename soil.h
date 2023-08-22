@@ -13,14 +13,15 @@ enum WATERING_STATES { HEALTHY,       // situazione regolare
 
 class Soil {
 private:
-  DagTimer tmr;  // il timer non bloccante attivo per la durata dell'irrigazione
-  Stream* srl;   //serial  monitor reference
+  DagTimer tmr_on;   // il timer non bloccante attivo per la durata dell'irrigazione
+  DagTimer tmr_off;  // il timer non bloccante attivo per la pausa tra un irriazione e l'altra.
+  Stream* srl;       //serial  monitor reference
 
   int PUMP_PIN;        // DIGITAL pin per l'avvio della pompa di irrigazione.
   int TANK_LEVEL_PIN;  // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio. (HIGH => empty?????)
   int SOIL_HEAT_PIN;   // DIGITAL pin per attivare il riscaldamento
 
-  const unsigned long wateringTime = (1000 *  5);  // il tempo minimo per cui la pompa deve rimanere attiva in millisecondi
+  const unsigned long wateringTime = (1000 * 5);  // il tempo minimo per cui la pompa deve rimanere attiva in millisecondi
   bool isTankEmpty();
 
 public:
