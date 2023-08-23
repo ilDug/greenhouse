@@ -26,6 +26,6 @@ void TermoIgro::listen() {
         tn++;
       }
     }
-    hum = hs / hn;
-    temp = ts / tn;
+    hum = int(hs / hn);
+    temp = int(ts / tn);
 }

@@ -35,8 +35,8 @@ int Moisture::moistureValue() {
     }
   }
   m = int(s / n);
-  m = map(m, 0, 1024, 1000, 0);
-
+  m = map(m, 0, 1024, 1024, 0);
+  value = m;
   srl->print("<Moisture>: ");
   srl->println(m);
   digitalWrite(ENABLE_PIN, LOW);

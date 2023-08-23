@@ -11,7 +11,7 @@ Geo::Geo(DallasTemperature* _sensor, Stream* _srl)
 
 
 void Geo::run(int tempThreshold) {
-  THRESHOLD = tempThreshold;  // imposta la soglia
+  THRESHOLD = map(tempThreshold, 0, 1024, 0, 35);  // imposta la soglia
 
   if (tmr.clock()) {
     srl->println("<Geo> measure.");

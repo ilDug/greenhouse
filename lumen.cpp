@@ -76,6 +76,7 @@ int Lumen::lumenValue() {
     }
   }
   m = int(s / n);
+  value = m;
   srl->print("<Lumen>: ");
   srl->println(m);
   return m;

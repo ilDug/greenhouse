@@ -13,8 +13,8 @@ private:
 
 public:
   TermoIgro(DHT* _dht);  // constructor che prende come argomento la durata del timer
-  float hum = 0;
-  float temp = 0;
+  int hum = 0;
+  int temp = 0;
   void listen();
 };
 

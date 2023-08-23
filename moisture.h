@@ -25,6 +25,7 @@ private:
 public:
   Moisture(int humSensPin, int humSensEnablePin, Stream* _srl);  // constructor
   void run(int humThreshold);                                    // avvia il controller del suolo. impostando la soglia di umidità e la soglia di temperatura.
+  int value;                                                     // valore grezzo del sensore
   MOISTURE_STATES STATUS;
 };
 

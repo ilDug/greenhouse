@@ -25,11 +25,12 @@
 
 
 /** costanti per l'illuminazione */
-int LUMEN_THRESHOLD = 400;  // valore limite minimo del sensore di luminosità per l'accensione della luce.
-const int LUMEN_PIN = A0;   // pin per la lettura del sensore di luminosità.
-const int LAMP_PIN = 8;     // DIGITAL pin di attivazione della luce, collegato al relay.
+int LUMEN_THRESHOLD;         // valore limite minimo del sensore di luminosità per l'accensione della luce.
+const int LUMEN_PIN = A0;    // pin per la lettura del sensore di luminosità.
+const int LAMP_PIN = 8;      // DIGITAL pin di attivazione della luce, collegato al relay.
+const int LAMP_BTN_PIN = 0;  // DIGITAL pin di attivazione della luce, collegato al relay.
 Lumen lumen(LAMP_PIN, LUMEN_PIN, &Serial);
-DagButton btnLamp(8, LOW);
+DagButton btnLamp(LAMP_BTN_PIN, LOW);
 
 /** costanti per la termo-igrometria */
 const int DHT_PIN = 0;  // pin per la lettura del sensore di umidità e temperatura dell'aria.
@@ -41,12 +42,12 @@ DagTimer airTimer;
 /** costanti per il controllo dell'irrigazione */
 const int SOIL_HUM_PIN = A1;        // ANALOG  pin per la lettura dell'umidità del suolo.
 const int SOIL_HUM_ENABLE_PIN = 9;  // DIGITAL pin per l'attivazione del transistore che abilita il sensore
-int SOIL_HUM_THRESHOLD = 400;       // valore limite dell'umidità per innescare l'irrigazione.
+int SOIL_HUM_THRESHOLD;             // valore limite dell'umidità per innescare l'irrigazione.
 Moisture moisture(SOIL_HUM_PIN, SOIL_HUM_ENABLE_PIN, &Serial);
 
 
-const int SOIL_TEMP_PIN = 0;   // DIGITAL pin del sensore di temperatura del terreno DS18B20
-int SOIL_TEMP_THRESHOLD = 20;  // limite di temperatura per innescare il riscaldamento
+const int SOIL_TEMP_PIN = 0;  // DIGITAL pin del sensore di temperatura del terreno DS18B20
+int SOIL_TEMP_THRESHOLD;      // limite di temperatura per innescare il riscaldamento
 OneWire oneWire(SOIL_TEMP_PIN);
 DallasTemperature ds18b20(&oneWire);
 Geo geo(&ds18b20, &Serial);
@@ -64,12 +65,25 @@ int SET_THS_LUX = 0;   // pin del potenziometro per l'impostazione della soglia 
 
 
 LCD03 lcd;  // Create new LCD03 instance
+DagTimer displayTimer;
+const int DSPL_BTN_PIN = 0;
+DagButton displayBtn(DSPL_BTN_PIN, LOW);
+void display_main();
+void display_thresholds();
+void display_lux();
+void display_heat();
+void display_moisture();
+void (*pages[])() = { display_main, display_thresholds, display_lux, display_heat, display_moisture };
+int activePage = 0;
 
 const int LED_PWR = 0;
 const int LED_PUMP = 0;
 const int LED_HEAT = 0;
 
 DagTimer ledTimer;
+
+
+
 
 void setup() {
   Serial.begin(9600);
@@ -103,6 +117,11 @@ void setup() {
   pinMode(LED_PUMP, OUTPUT);
   pinMode(LED_HEAT, OUTPUT);
 
+
+  // accende il led per indicare l'accensione
+  digitalWrite(LED_PWR, HIGH);
+  ledTimer.init(1000);
+
   //LCD
   lcd.begin(16, 2);  // inizializza LCD
   lcd.backlight();
@@ -111,10 +130,6 @@ void setup() {
   delay(3000);
   lcd.clear();
   lcd.noBacklight();
-
-  // accende il led per indicare l'accensione
-  digitalWrite(LED_PWR, HIGH);
-  ledTimer.init(1000);
 }
 
 
@@ -144,13 +159,15 @@ void loop() {
 
 
   /** display */
-
+  pages[activePage]();                 // visualizza la pagina attiva
+  displayBtn.onPress(display_change);  // quando premuto aumenta il numero della pagina e fa partre il timer di reset
+  displayTimer.run(display_reset);     // resetta la pagina prncipale al termine dell'intervallo di tempo
 
   /** led */
   ledTimer.run(led_ctrl);
 }
 
-
+//****************************************************************************
 /** accende e spegne la lampada */
 void lampToggle() {
   lumen.toggle();
@@ -189,4 +206,92 @@ void led_ctrl() {
 }
 
 
+//******************************************************************************
+void display_change() {
+  activePage = activePage >= 4 ? 0 : activePage + 1;
+  displayTimer.init(5000, false);
+}
 
+void display_reset() {
+  activePage = 0;
+}
+
+
+void display_main() {
+  lcd.clear();
+
+  // prima riga
+  lcd.home();
+  lcd.print("Air ");
+  lcd.print(air.hum);
+  lcd.print("% ");
+  lcd.setCursor(0, 12);
+  lcd.print(air.temp);
+  lcd.print("°C");
+
+  lcd.newLine();  // va a capo
+
+  //seconda riga
+  String g = geo.STATUS == COLD ? "COLD" : (geo.STATUS == HOT ? "HOT" : "---");
+  String m = moisture.STATUS == DRY ? "DRY" : (moisture.STATUS == WET ? "WET" : "---");
+  lcd.print(g);
+  lcd.print(" ");
+  lcd.print(m);
+  lcd.setCursor(1, 12);
+  lcd.print(geo.temp);
+  lcd.print("°C");
+}
+
+void display_thresholds() {
+  lcd.clear();
+  lcd.home();
+
+  lcd.print("Lux  Moist  Heat");
+  lcd.newLine();
+
+  lcd.print(LUMEN_THRESHOLD);
+  lcd.setCursor(1, 6);
+  lcd.print(SOIL_HUM_THRESHOLD);
+  lcd.setCursor(1, 12);
+  lcd.print(SOIL_TEMP_THRESHOLD);
+}
+
+void display_moisture() {
+  lcd.clear();
+  lcd.home();
+
+  lcd.print("MOISTURE ");
+  lcd.print(moisture.value);
+
+  lcd.newLine();
+
+  lcd.print("Threshod ");
+  lcd.print(SOIL_HUM_THRESHOLD);
+}
+
+void display_lux() {
+  lcd.clear();
+  lcd.home();
+
+  lcd.print("LUMEN ");
+  lcd.print(lumen.value);
+
+  lcd.newLine();
+
+  lcd.print("Threshod ");
+  lcd.print(LUMEN_THRESHOLD);
+}
+
+
+void display_heat() {
+  lcd.clear();
+  lcd.home();
+
+  lcd.print("HEAT ");
+  lcd.print(map(geo.temp, 0, 35, 0, 1024));
+
+  lcd.newLine();
+
+  lcd.print("Threshod ");
+  lcd.print(SOIL_TEMP_THRESHOLD);
+}

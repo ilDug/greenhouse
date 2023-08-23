@@ -26,6 +26,7 @@ public:
   void toggle(void);                                // alterna on e off
   LightStates STATUS;                               // stato del sistema di regolazione
   bool AUTO_MODE = true;                            // indica se la classe deve operare automaticamente o se è forzato uno stato;
+  int value;                                        // valore grezzo letto dal sensore
 };
 
 #endif
