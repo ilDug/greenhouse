@@ -65,7 +65,11 @@ int SET_THS_LUX = 0;   // pin del potenziometro per l'impostazione della soglia 
 
 LCD03 lcd;  // Create new LCD03 instance
 
+const int LED_PWR = 0;
+const int LED_PUMP = 0;
+const int LED_HEAT = 0;
 
+DagTimer ledTimer;
 
 void setup() {
   Serial.begin(9600);
@@ -95,6 +99,9 @@ void setup() {
   pinMode(SET_THS_HUM, INPUT);
   pinMode(SET_THS_LUX, INPUT);
 
+  pinMode(LED_PWR, OUTPUT);
+  pinMode(LED_PUMP, OUTPUT);
+  pinMode(LED_HEAT, OUTPUT);
 
   //LCD
   lcd.begin(16, 2);  // inizializza LCD
@@ -104,6 +111,10 @@ void setup() {
   delay(3000);
   lcd.clear();
   lcd.noBacklight();
+
+  // accende il led per indicare l'accensione
+  digitalWrite(LED_PWR, HIGH);
+  ledTimer.init(1000);
 }
 
 
@@ -134,7 +145,9 @@ void loop() {
 
   /** display */
 
-  
+
+  /** led */
+  ledTimer.run(led_ctrl);
 }
 
 
@@ -153,3 +166,27 @@ void lampAuto() {
 void termo_igro() {
   air.listen();
 }
+
+
+void led_ctrl() {
+  /** comanda il led dela segnale pompa */
+  switch (soil.STATUS) {
+    case WATERING:
+      digitalWrite(LED_PUMP, HIGH);
+      break;
+
+    case EMPTY_TANK:
+      digitalWrite(LED_PUMP, !digitalRead(LED_PUMP));
+      break;
+
+    default:
+      digitalWrite(LED_PUMP, LOW);
+      break;
+  }
+
+  /** comanda il led del pad di riscaldamento*/
+  digitalWrite(LED_HEAT, digitalRead(SOIL_HEAT_PIN));
+}
+
+
+
