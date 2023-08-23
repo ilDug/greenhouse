@@ -36,6 +36,7 @@ const int DHT_PIN = 0;  // pin per la lettura del sensore di umidità e temperat
 #define DHTTYPE DHT11
 DHT dht(DHT_PIN, DHTTYPE);
 TermoIgro air(&dht);
+DagTimer airTimer;
 
 /** costanti per il controllo dell'irrigazione */
 const int SOIL_HUM_PIN = A1;        // ANALOG  pin per la lettura dell'umidità del suolo.
@@ -69,7 +70,9 @@ LCD03 lcd;  // Create new LCD03 instance
 void setup() {
   Serial.begin(9600);
   Serial.println("Inizializzazione DAG GREENHOUSE");
-  // dht.begin();
+
+  dht.begin();          // attiva il sensore dei parametri ambientali dell'aria.
+  airTimer.init(5000);  // attiva il timer per la lettura dei parametri dell'aria.
 
   /** IRRIGAZIONE */
   pinMode(PUMP_PIN, OUTPUT);
@@ -126,10 +129,12 @@ void loop() {
 
 
   /** controllo termo-igrometria dell'aria*/
-  air.run();
+  airTimer.run(termo_igro);
 
 
   /** display */
+
+  
 }
 
 
@@ -142,4 +147,9 @@ void lampToggle() {
 /** attiva l'auto mode della lampada*/
 void lampAuto() {
   lumen.AUTO_MODE = true;
+}
+
+/** esegue le letture dei parametri dell'aria*/
+void termo_igro() {
+  air.listen();
 }

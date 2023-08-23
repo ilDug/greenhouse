@@ -1,16 +1,14 @@
 #include "air.h"
 
-TermoIgro::TermoIgro(DHT* _dht)
-  : timer() {
-  timer.init(frequency);
+TermoIgro::TermoIgro(DHT* _dht) {
   dht = _dht;
 }
 
 
-void TermoIgro::run() {
+void TermoIgro::listen() {
   // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  if (timer.clock()) {
+
     int hn = 0, tn = 0, i = 0;  // numero leture  di umidità,  temperatura e totali
     float hs = 0, ts = 0;       // somma delle leture
     float _h, _t;               // lettura istantanea
@@ -28,7 +26,6 @@ void TermoIgro::run() {
         tn++;
       }
     }
-    h = hs / hn;
-    t = ts / tn;
-  }
+    hum = hs / hn;
+    temp = ts / tn;
 }
