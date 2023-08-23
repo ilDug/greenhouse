@@ -11,9 +11,9 @@ void TermoIgro::run() {
   // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   if (timer.clock()) {
-    int hn, tn, i;
-    float hs, ts;
-    float _h, _t;
+    int hn = 0, tn = 0, i = 0;  // numero leture  di umidità,  temperatura e totali
+    float hs = 0, ts = 0;       // somma delle leture
+    float _h, _t;               // lettura istantanea
 
     while (hn <= 3 && tn <= 3 && i < 5) {
       i++;

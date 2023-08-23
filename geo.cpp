@@ -2,12 +2,11 @@
 #include "dag_timer.h"
 #include "geo.h"
 
-
-Geo::Geo(int tempSensPin, Stream* _srl)
+Geo::Geo(DallasTemperature* _sensor, Stream* _srl)
   : tmr() {
-  SENS_PIN = tempSensPin;  // ANALOG  pin per la lettura della temperatura del suolo.
   tmr.init(frequency);
   srl = _srl;
+  sensor = _sensor;
 }
 
 
@@ -21,23 +20,11 @@ void Geo::run(int tempThreshold) {
 }
 
 int Geo::geoValue() {
-  delay(1000);  // necessario er inizializzare il sensore
-
-  int n = 0, i = 0, m = 0, s = 0;
-  while (n <= 10 && i < 16) {
-    i++;
-    int v = analogRead(SENS_PIN);
-    if (isnan(v) == false) {
-      s += v;
-      n++;
-    }
-  }
-  m = int(s / n);
-  m = map(m, 0, 1024, 1000, 0);
-
+  sensor->requestTemperatures();
+  temp = sensor->getTempCByIndex(0);
   srl->print("<Geo>: ");
-  srl->println(m);
-  return m;
+  srl->println(temp);
+  return temp;
 }
 
 

@@ -10,16 +10,16 @@ enum MOISTURE_STATES { DRY,    // terreno secco
 
 class Moisture {
 private:
-  Stream* srl;
-  DagTimer tmr;
+  Stream* srl;   // puntatore al Serial monitor
+  DagTimer tmr;  // Istanza dell'oggetto DagTimer
 
-  int SENS_PIN;                               // ANALOG  pin per la lettura dell'umidità del suolo.
-  int ENABLE_PIN;                             // DIGITAL pin per l'attivazione del transistore che abilita il sensore
-  int THRESHOLD;                              // valore limite dell'umidità per innescare l'irrigazione.
-  int moistureValue();                        // valore del sensore su scala  0-1023. Legge il valore del sensore di umidità
-  const int delta = 75;                        // delta dell'umidità per controllare l'isteresi (in percentuale)
+  int SENS_PIN;                              // ANALOG  pin per la lettura dell'umidità del suolo.
+  int ENABLE_PIN;                            // DIGITAL pin per l'attivazione del transistore che abilita il sensore
+  int THRESHOLD;                             // valore limite dell'umidità per innescare l'irrigazione.
+  int moistureValue();                       // valore del sensore su scala  0-1023. Legge il valore del sensore di umidità
+  const int delta = 75;                      // delta dell'umidità per controllare l'isteresi (in percentuale)
   const unsigned long frequency = 1000 * 5;  // frequenza di aggiornamento della lettura del sensore di umidità
-  bool isDry();                               // controlla se il terreno ha bisogno di acqua
+  bool isDry();                              // controlla se il terreno ha bisogno di acqua
 
 
 public:

@@ -20,31 +20,35 @@
 #include <Wire.h>
 #include "LCD03.h"
 
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
 
 /** costanti per l'illuminazione */
-const int LUMEN_THRESHOLD = 400;  // valore limite minimo del sensore di luminosità per l'accensione della luce.
-const int LUMEN_PIN = A0;         // pin per la lettura del sensore di luminosità.
-const int LAMP_PIN = 8;           // DIGITAL pin di attivazione della luce, collegato al relay.
+int LUMEN_THRESHOLD = 400;  // valore limite minimo del sensore di luminosità per l'accensione della luce.
+const int LUMEN_PIN = A0;   // pin per la lettura del sensore di luminosità.
+const int LAMP_PIN = 8;     // DIGITAL pin di attivazione della luce, collegato al relay.
 Lumen lumen(LAMP_PIN, LUMEN_PIN, &Serial);
 DagButton btnLamp(8, LOW);
 
 /** costanti per la termo-igrometria */
-// const int DHT_PIN = 0;  // pin per la lettura del sensore di umidità e temperatura dell'aria.
-// #define DHTTYPE DHT22   // DHT 22 (AM2302)
-// #define DHTTYPE DHT21  // DHT 21 (AM2301)
-// DHT dht(DHT_PIN, DHTTYPE);
-// TermoIgro ht(&dht);
+const int DHT_PIN = 0;  // pin per la lettura del sensore di umidità e temperatura dell'aria.
+#define DHTTYPE DHT11
+DHT dht(DHT_PIN, DHTTYPE);
+TermoIgro air(&dht);
 
 /** costanti per il controllo dell'irrigazione */
-const int SOIL_HUM_PIN = A1;         // ANALOG  pin per la lettura dell'umidità del suolo.
-const int SOIL_HUM_ENABLE_PIN = 9;   // DIGITAL pin per l'attivazione del transistore che abilita il sensore
-const int SOIL_HUM_THRESHOLD = 400;  // valore limite dell'umidità per innescare l'irrigazione.
+const int SOIL_HUM_PIN = A1;        // ANALOG  pin per la lettura dell'umidità del suolo.
+const int SOIL_HUM_ENABLE_PIN = 9;  // DIGITAL pin per l'attivazione del transistore che abilita il sensore
+int SOIL_HUM_THRESHOLD = 400;       // valore limite dell'umidità per innescare l'irrigazione.
 Moisture moisture(SOIL_HUM_PIN, SOIL_HUM_ENABLE_PIN, &Serial);
 
 
-const int SOIL_TEMP_PIN = A2;        // ANALOG pin del sensore di temperatura del terreno
-const int SOIL_TEMP_THRESHOLD = 20;  // limite di temperatura per innescare il riscaldamento
-Geo earthTemp(SOIL_TEMP_PIN, &Serial);
+const int SOIL_TEMP_PIN = 0;   // DIGITAL pin del sensore di temperatura del terreno DS18B20
+int SOIL_TEMP_THRESHOLD = 20;  // limite di temperatura per innescare il riscaldamento
+OneWire oneWire(SOIL_TEMP_PIN);
+DallasTemperature ds18b20(&oneWire);
+Geo geo(&ds18b20, &Serial);
 
 
 const int PUMP_PIN = 0;        // DIGITAL pin per l'avvio della pompa di irrigazione.
@@ -53,12 +57,12 @@ const int SOIL_HEAT_PIN = 7;   // DIGITAL pin per attivare il riscaldamento, col
 Soil soil(TANK_LEVEL_PIN, PUMP_PIN, SOIL_HEAT_PIN, &Serial);
 
 
-const int SET_THS_TEMP = 0;  // pin del potenziometro per l'impostazione della soglia di temperatura suolo
-const int SET_THS_HUM = 0;   // pin del potenziometro per l'impostazione della soglia di umidità terreno
-const int SET_THS_LUX = 0;   // pin del potenziometro per l'impostazione della soglia di luminosità
+int SET_THS_TEMP = 0;  // pin del potenziometro per l'impostazione della soglia di temperatura suolo
+int SET_THS_HUM = 0;   // pin del potenziometro per l'impostazione della soglia di umidità terreno
+int SET_THS_LUX = 0;   // pin del potenziometro per l'impostazione della soglia di luminosità
 
 
-LCD03 lcd; // Create new LCD03 instance
+LCD03 lcd;  // Create new LCD03 instance
 
 
 
@@ -90,7 +94,7 @@ void setup() {
 
 
   //LCD
-  lcd.begin(16, 2); // inizializza LCD 
+  lcd.begin(16, 2);  // inizializza LCD
   lcd.backlight();
   lcd.home();
   lcd.print("DAG Greenhouse v0.0.1");
@@ -108,13 +112,11 @@ void loop() {
   SOIL_HUM_THRESHOLD = analogRead(SET_THS_HUM);
   LUMEN_THRESHOLD = analogRead(SET_THS_LUX);
 
-  /** check/manutenzione del sistema  */
-
 
   /** controllo suolo */
   moisture.run(SOIL_HUM_THRESHOLD);
-  earthTemp.run(SOIL_TEMP_THRESHOLD);
-  soil.run(&moisture, &earthTemp);
+  geo.run(SOIL_TEMP_THRESHOLD);
+  soil.run(&moisture, &geo);
 
 
   /** controllo illuminazione */
@@ -122,12 +124,12 @@ void loop() {
   btnLamp.onPress(lampToggle);
   btnLamp.onLongPress(lampAuto, 3000);
 
+
   /** controllo termo-igrometria dell'aria*/
-  // ht.run();
+  air.run();
 
 
   /** display */
-  
 }
 
 
