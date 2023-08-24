@@ -136,7 +136,6 @@ void setup() {
 
 
 void loop() {
-  delay(10);
   // PROCESSI //
   /** lettura dei potenziometri */
   SOIL_TEMP_THRESHOLD = analogRead(SET_THS_TEMP);

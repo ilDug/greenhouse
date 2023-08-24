@@ -5,19 +5,36 @@
 
 class DagTimer {
 private:
-  unsigned long bookmark;   // variabile che salva il time per il confronto del loop successivo
-  unsigned long duration;   // Durata del timer in millisecondi
-  void (*call_back)(void);  // funzione da eseguire allo scattare del timer
-  int FIRED;                // indica se il timer è attivo (sta eseguendo la funzione di callback)
-  boolean LOOP;             //indica se il timer deve ripetersi ciclicament
+  // variabile che salva il time per il confronto del loop successivo
+  unsigned long bookmark;
+
+  // Durata del timer in millisecondi
+  unsigned long duration;
+
+  // funzione da eseguire allo scattare del timer
+  void (*call_back)(void);
+
+  // indica se il timer è attivo (sta eseguendo la funzione di callback)
+  int FIRED;
+
+  //indica se il timer deve ripetersi ciclicament
+  bool LOOP;
 
 public:
-  DagTimer();                              // constructor che prende come argomento la durata del timer
-  void init(unsigned long time_duration);  // inizializza (specificare o meno se è da eseguire in loop. DEFAULT TRUE)
+  // constructor
+  DagTimer();
+
+  // inizializza la durata del timer e lo fa partire. In default è attivo il LOOP.
+  void init(unsigned long time_duration);
+
+  // inizializza la drat adel timer e lo fa partire, il secondo parametro indica se è attivo il LOOP
   void init(unsigned long time_duration, bool repeat);
-  bool triggered();             // restituisce un booleano che verifica se il periodo è scoccato.
-  bool clock();                 // alias per triggered
-  void run(void (*fun)(void));  // avvia il timer,  ed esegue la funzione passata come argomento
+
+  // restituisce un booleano che verifica se il periodo è scoccato.
+  bool clock();
+
+  // esegue la funzione passata come argomento allo scoccare del periodo
+  void run(void (*fun)(void));
 };
 
 #endif

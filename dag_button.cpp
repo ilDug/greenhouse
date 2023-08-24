@@ -1,8 +1,9 @@
 #include "dag_button.h"
 
-void dagBtnNoop() {} // funzione segnaposto che non fa niente
+void dagBtnNoop() {}  // funzione segnaposto che non fa niente
 
-DagButton::DagButton(int pin): DagButton(pin, HIGH) {};
+DagButton::DagButton(int pin)
+  : DagButton(pin, HIGH){};
 
 DagButton::DagButton(int pin, int mode) {
   call_back = dagBtnNoop;
@@ -22,14 +23,23 @@ DagButton::DagButton(int pin, int mode) {
   }
 }
 
-boolean DagButton::clicked(void) {
+bool DagButton::clicked() {
   STATE = digitalRead(PIN);
   return STATE == triggeredBy;
 }
 
+bool DagButton::pressed() {
+  if (clicked() == prevState) return false;
+  else {
+    // imposta il valore per il prossimo loop
+    prevState = clicked();
+    return true;
+  }
+}
+
 
 void DagButton::onPress(void (*fun)(void)) {
-  if ( !clicked() ) {
+  if (!clicked()) {
     executed = false;
     return;
   };
@@ -43,7 +53,7 @@ void DagButton::onPress(void (*fun)(void)) {
 
 void DagButton::onLongPress(void (*fun)(void), int trigger_time) {
 
-  if ( !clicked() ) {
+  if (!clicked()) {
     pressTime = millis();
     return;
   };
@@ -51,26 +61,21 @@ void DagButton::onLongPress(void (*fun)(void), int trigger_time) {
   unsigned long dt = millis() - pressTime;
   boolean isStillPressed = clicked() && dt >= trigger_time;
 
-  if ( isStillPressed ) {
+  if (isStillPressed) {
     call_back = fun;
     call_back();
     pressTime = millis();
   }
-
 }
 
 
 void DagButton::onRelease(void (*fun)(void)) {
   if (!clicked()) return;
 
-  while ( clicked()  ) {
+  while (clicked()) {
     delay(10);
     // attende fino a quando non viene rilasciato
   }
   call_back = fun;
   call_back();
 }
-
-
-
-

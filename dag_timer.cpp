@@ -12,7 +12,7 @@ void DagTimer::init(unsigned long time_duration) {
   init(time_duration, true);
 }
 
-void DagTimer::init(unsigned long time_duration, boolean repeat) {
+void DagTimer::init(unsigned long time_duration, bool repeat) {
   duration = time_duration;
   bookmark = millis();
   FIRED = 0;
@@ -20,15 +20,15 @@ void DagTimer::init(unsigned long time_duration, boolean repeat) {
 }
 
 void DagTimer::run(void (*fun)(void)) {
-  if (triggered()) {
+  if (clock()) {
     call_back = fun;
     call_back();
   }
 }
 
-bool DagTimer::triggered() {
+bool DagTimer::clock() {
   unsigned long dt = (millis() - bookmark);
-  boolean res = false;
+  bool res = false;
 
   if ((dt > duration) && !FIRED) {
     FIRED = 1;
@@ -41,8 +41,4 @@ bool DagTimer::triggered() {
   } else res = false;
 
   return res;
-}
-
-bool DagTimer::clock() {
-  return triggered();
 }
