@@ -39,36 +39,34 @@ DHT dht(DHT_PIN, DHTTYPE);
 TermoIgro air(&dht);
 DagTimer airTimer;
 
-/** costanti per il controllo dell'irrigazione */
-const int SOIL_HUM_PIN = A6;        // ANALOG  pin per la lettura dell'umidità del suolo.
+/** controllo dell'umidità del terreno */
+const int SOIL_HUM_PIN = A6;         // ANALOG  pin per la lettura dell'umidità del suolo.
 const int SOIL_HUM_ENABLE_PIN = A7;  // DIGITAL pin per l'attivazione del transistore che abilita il sensore
-int SOIL_HUM_THRESHOLD;             // valore limite dell'umidità per innescare l'irrigazione.
+int SOIL_HUM_THRESHOLD;              // valore limite dell'umidità per innescare l'irrigazione.
 Moisture moisture(SOIL_HUM_PIN, SOIL_HUM_ENABLE_PIN, &Serial);
 
-
+/** Controllo la temperatura del terreno */
 const int SOIL_TEMP_PIN = 7;  // DIGITAL pin del sensore di temperatura del terreno DS18B20
 int SOIL_TEMP_THRESHOLD;      // limite di temperatura per innescare il riscaldamento
 OneWire oneWire(SOIL_TEMP_PIN);
-DallasTemperature ds18b20(&oneWire);
+DallasTemperature ds18b20(&oneWire);  // inizializzazine sensore temperatura terreno
 Geo geo(&ds18b20, &Serial);
 
-
+/** Controllo Irrigazione */
 const int PUMP_PIN = 9;        // DIGITAL pin per l'avvio della pompa di irrigazione.
 const int WATERLOCK_PIN = 4;   // DIGITAL segnale per il blocco del'irrigazione
 const int TANK_LEVEL_PIN = 2;  // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio.
-const int SOIL_HEAT_PIN = 10;   // DIGITAL pin per attivare il riscaldamento, collegato al relay
+const int SOIL_HEAT_PIN = 10;  // DIGITAL pin per attivare il riscaldamento, collegato al relay
 Soil soil(TANK_LEVEL_PIN, PUMP_PIN, SOIL_HEAT_PIN, &Serial);
 
-
+/** Potenziometri */
 int SET_THS_TEMP = A1;  // pin del potenziometro per l'impostazione della soglia di temperatura suolo
 int SET_THS_HUM = A2;   // pin del potenziometro per l'impostazione della soglia di umidità terreno
 int SET_THS_LUX = A3;   // pin del potenziometro per l'impostazione della soglia di luminosità
 
-
+/** Display LCD*/
 LCD03 lcd;  // Create new LCD03 instance
-DagTimer displayTimer;
 const int DSPL_BTN_PIN = 3;
-DagButton displayBtn(DSPL_BTN_PIN, LOW);
 void display_main();
 void display_thresholds();
 void display_lux();
@@ -76,16 +74,17 @@ void display_heat();
 void display_moisture();
 void (*pages[])() = { display_main, display_thresholds, display_lux, display_heat, display_moisture };
 int activePage = 0;
+uint8_t lcd_backlight = LOW;  //variabile che salva l'accensione della luce del display (attivabile con longPress del displayBtn)
+DagButton displayBtn(DSPL_BTN_PIN, LOW);
+DagTimer displayTimer;
 
-const int LED_PWR = 13;
-const int LED_PUMP = 11;
-const int LED_HEAT = 12;
-
+/** LED */
+const int LED_PWR = 13;   // Power Led
+const int LED_PUMP = 11;  // Led per avvsare l'avviamento della pompa di irrigazione. Lampeggia se il serbatoio dell'acqua è vuoto.
+const int LED_HEAT = 12;  // led per avvisare l'accensione del pad di riscaldamento
 DagTimer ledTimer;
 
-
-
-
+//*********************************************************************************
 void setup() {
   Serial.begin(9600);
   Serial.println("Inizializzazione DAG GREENHOUSE");
@@ -115,20 +114,21 @@ void setup() {
   pinMode(SET_THS_HUM, INPUT);
   pinMode(SET_THS_LUX, INPUT);
 
+  /** LED */
   pinMode(LED_PWR, OUTPUT);
   pinMode(LED_PUMP, OUTPUT);
   pinMode(LED_HEAT, OUTPUT);
 
 
-  // accende il led per indicare l'accensione
+  // accende il power led
   digitalWrite(LED_PWR, HIGH);
   ledTimer.init(1000);
 
   //LCD
   lcd.begin(16, 2);  // inizializza LCD
-  lcd.backlight();
+  lcd.backlight();   // accende lo sfondo
   lcd.home();
-  lcd.print("DAG Greenhouse v0.0.1");
+  lcd.print("DAG Greenhouse v0.0.1");  // messaggio di benvenuto
   delay(3000);
   lcd.clear();
   lcd.noBacklight();
@@ -162,7 +162,8 @@ void loop() {
   /** display */
   pages[activePage]();                 // visualizza la pagina attiva
   displayBtn.onPress(display_change);  // quando premuto aumenta il numero della pagina e fa partre il timer di reset
-  displayTimer.run(display_reset);     // resetta la pagina prncipale al termine dell'intervallo di tempo
+  displayBtn.onLongPress(display_backlight, 3000);
+  displayTimer.run(display_reset);  // resetta la pagina prncipale al termine dell'intervallo di tempo
 
   /** led */
   ledTimer.run(led_ctrl);
@@ -217,6 +218,15 @@ void display_reset() {
   activePage = 0;
 }
 
+void display_backlight() {
+  lcd_backlight = !lcd_backlight;
+  switch (lcd_backlight) {
+    case HIGH:
+      lcd.backlight();
+    case LOW:
+      lcd.noBacklight();
+  }
+}
 
 void display_main() {
   lcd.clear();
