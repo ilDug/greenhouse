@@ -24,7 +24,7 @@ int Geo::geoValue() {
   temp = sensor->getTempCByIndex(0);
   srl->print("<Geo>: ");
   srl->println(temp);
-  return temp;
+  return int(temp);
 }
 
 

@@ -18,7 +18,7 @@
 #include <DHT_U.h>
 
 #include <Wire.h>
-#include "LCD03.h"
+#include <LCD_I2C.h>
 
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -65,7 +65,7 @@ int SET_THS_HUM = A2;   // pin del potenziometro per l'impostazione della soglia
 int SET_THS_LUX = A3;   // pin del potenziometro per l'impostazione della soglia di luminosità
 
 /** Display LCD*/
-LCD03 lcd;  // Create new LCD03 instance
+LCD_I2C lcd(0x27, 16, 2); //SDA => A4: SCL => A5
 const int DSPL_BTN_PIN = 3;
 void display_main();
 void display_thresholds();
@@ -74,7 +74,7 @@ void display_heat();
 void display_moisture();
 void (*pages[])() = { display_main, display_thresholds, display_lux, display_heat, display_moisture };
 int activePage = 0;
-uint8_t lcd_backlight = LOW;  //variabile che salva l'accensione della luce del display (attivabile con longPress del displayBtn)
+uint8_t lcd_backlight = HIGH;  //variabile che salva l'accensione della luce del display (attivabile con longPress del displayBtn)
 DagButton displayBtn(DSPL_BTN_PIN, LOW);
 DagTimer displayTimer;
 
@@ -125,17 +125,20 @@ void setup() {
   ledTimer.init(1000);
 
   //LCD
-  lcd.begin(16, 2);  // inizializza LCD
+  lcd.begin();  // inizializza LCD
   lcd.backlight();   // accende lo sfondo
   lcd.home();
-  lcd.print("DAG Greenhouse v0.0.1");  // messaggio di benvenuto
+  lcd.print("DAG Greenhouse");  // messaggio di benvenuto
+  lcd.setCursor(0,1);
+  lcd.print("v0.0.1");
   delay(3000);
   lcd.clear();
-  lcd.noBacklight();
+  // lcd.noBacklight();
 }
 
 
 void loop() {
+  delay(50);
   // PROCESSI //
   /** lettura dei potenziometri */
   SOIL_TEMP_THRESHOLD = analogRead(SET_THS_TEMP);
@@ -150,9 +153,9 @@ void loop() {
 
 
   /** controllo illuminazione */
-  lumen.run(LUMEN_THRESHOLD);
-  btnLamp.onPress(lampToggle);
-  btnLamp.onLongPress(lampAuto, 3000);
+  // lumen.run(LUMEN_THRESHOLD);
+  // btnLamp.onPress(lampToggle);
+  // btnLamp.onLongPress(lampAuto, 3000);
 
 
   /** controllo termo-igrometria dell'aria*/
@@ -162,11 +165,11 @@ void loop() {
   /** display */
   pages[activePage]();                 // visualizza la pagina attiva
   displayBtn.onPress(display_change);  // quando premuto aumenta il numero della pagina e fa partre il timer di reset
-  displayBtn.onLongPress(display_backlight, 3000);
+  displayBtn.onLongPress(display_backlight, 2000);
   displayTimer.run(display_reset);  // resetta la pagina prncipale al termine dell'intervallo di tempo
 
   /** led */
-  ledTimer.run(led_ctrl);
+  // ledTimer.run(led_ctrl);
 }
 
 //****************************************************************************
@@ -236,11 +239,11 @@ void display_main() {
   lcd.print("Air ");
   lcd.print(air.hum);
   lcd.print("% ");
-  lcd.setCursor(0, 12);
+  lcd.setCursor(10, 0);
   lcd.print(air.temp);
-  lcd.print("°C");
+  lcd.print(" C");
 
-  lcd.newLine();  // va a capo
+  lcd.setCursor(0,1);  // va a capo
 
   //seconda riga
   String g = geo.STATUS == COLD ? "COLD" : (geo.STATUS == HOT ? "HOT" : "---");
@@ -248,9 +251,9 @@ void display_main() {
   lcd.print(g);
   lcd.print(" ");
   lcd.print(m);
-  lcd.setCursor(1, 12);
-  lcd.print(geo.temp);
-  lcd.print("°C");
+  lcd.setCursor(10, 1);
+  lcd.print(int(geo.temp));
+  lcd.print(" C");
 }
 
 void display_thresholds() {
@@ -258,7 +261,7 @@ void display_thresholds() {
   lcd.home();
 
   lcd.print("Lux  Moist  Heat");
-  lcd.newLine();
+  lcd.setCursor(0,1);  // va a capo
 
   lcd.print(LUMEN_THRESHOLD);
   lcd.setCursor(1, 6);
@@ -274,7 +277,7 @@ void display_moisture() {
   lcd.print("MOISTURE ");
   lcd.print(moisture.value);
 
-  lcd.newLine();
+  lcd.setCursor(0,1);  // va a capo
 
   lcd.print("Threshod ");
   lcd.print(SOIL_HUM_THRESHOLD);
@@ -287,7 +290,7 @@ void display_lux() {
   lcd.print("LUMEN ");
   lcd.print(lumen.value);
 
-  lcd.newLine();
+  lcd.setCursor(0,1);  // va a capo
 
   lcd.print("Threshod ");
   lcd.print(LUMEN_THRESHOLD);
@@ -301,7 +304,7 @@ void display_heat() {
   lcd.print("HEAT ");
   lcd.print(map(geo.temp, 0, 35, 0, 1024));
 
-  lcd.newLine();
+  lcd.setCursor(0,1);  // va a capo
 
   lcd.print("Threshod ");
   lcd.print(SOIL_TEMP_THRESHOLD);
