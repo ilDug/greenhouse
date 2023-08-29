@@ -65,7 +65,7 @@ int SET_THS_HUM = A2;   // pin del potenziometro per l'impostazione della soglia
 int SET_THS_LUX = A3;   // pin del potenziometro per l'impostazione della soglia di luminosità
 
 /** Display LCD*/
-LCD_I2C lcd(0x27, 16, 2); //SDA => A4: SCL => A5
+LCD_I2C lcd(0x27, 16, 2);  //SDA => A4: SCL => A5
 const int DSPL_BTN_PIN = 3;
 void display_main();
 void display_thresholds();
@@ -125,11 +125,11 @@ void setup() {
   ledTimer.init(1000);
 
   //LCD
-  lcd.begin();  // inizializza LCD
-  lcd.backlight();   // accende lo sfondo
+  lcd.begin();      // inizializza LCD
+  lcd.backlight();  // accende lo sfondo
   lcd.home();
   lcd.print("DAG Greenhouse");  // messaggio di benvenuto
-  lcd.setCursor(0,1);
+  lcd.setCursor(0, 1);
   lcd.print("v0.0.1");
   delay(3000);
   lcd.clear();
@@ -239,11 +239,11 @@ void display_main() {
   lcd.print("Air ");
   lcd.print(air.hum);
   lcd.print("% ");
-  lcd.setCursor(10, 0);
+  lcd.setCursor(9, 0);
   lcd.print(air.temp);
-  lcd.print(" C");
+  lcd.print("\xDF""C");
 
-  lcd.setCursor(0,1);  // va a capo
+  lcd.setCursor(0, 1);  // va a capo
 
   //seconda riga
   String g = geo.STATUS == COLD ? "COLD" : (geo.STATUS == HOT ? "HOT" : "---");
@@ -251,9 +251,9 @@ void display_main() {
   lcd.print(g);
   lcd.print(" ");
   lcd.print(m);
-  lcd.setCursor(10, 1);
+  lcd.setCursor(9, 1);
   lcd.print(int(geo.temp));
-  lcd.print(" C");
+  lcd.print("\xDF""C");
 }
 
 void display_thresholds() {
@@ -261,7 +261,7 @@ void display_thresholds() {
   lcd.home();
 
   lcd.print("Lux  Moist  Heat");
-  lcd.setCursor(0,1);  // va a capo
+  lcd.setCursor(0, 1);  // va a capo
 
   lcd.print(LUMEN_THRESHOLD);
   lcd.setCursor(1, 6);
@@ -277,7 +277,7 @@ void display_moisture() {
   lcd.print("MOISTURE ");
   lcd.print(moisture.value);
 
-  lcd.setCursor(0,1);  // va a capo
+  lcd.setCursor(0, 1);  // va a capo
 
   lcd.print("Threshod ");
   lcd.print(SOIL_HUM_THRESHOLD);
@@ -290,7 +290,7 @@ void display_lux() {
   lcd.print("LUMEN ");
   lcd.print(lumen.value);
 
-  lcd.setCursor(0,1);  // va a capo
+  lcd.setCursor(0, 1);  // va a capo
 
   lcd.print("Threshod ");
   lcd.print(LUMEN_THRESHOLD);
@@ -304,7 +304,7 @@ void display_heat() {
   lcd.print("HEAT ");
   lcd.print(map(geo.temp, 0, 35, 0, 1024));
 
-  lcd.setCursor(0,1);  // va a capo
+  lcd.setCursor(0, 1);  // va a capo
 
   lcd.print("Threshod ");
   lcd.print(SOIL_TEMP_THRESHOLD);
