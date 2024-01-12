@@ -27,13 +27,13 @@
 /** costanti per l'illuminazione */
 int LUMEN_THRESHOLD;         // valore limite minimo del sensore di luminosità per l'accensione della luce.
 const int LUMEN_PIN = A0;    // pin per la lettura del sensore di luminosità.
-const int LAMP_PIN = 8;      // DIGITAL pin di attivazione della luce, collegato al relay.
+const int LAMP_PIN = 10;      // DIGITAL pin di attivazione della luce, collegato al relay.
 const int LAMP_BTN_PIN = 5;  // DIGITAL pin di attivazione della luce, collegato al relay.
 Lumen lumen(LAMP_PIN, LUMEN_PIN, &Serial);
 DagButton btnLamp(LAMP_BTN_PIN, LOW);
 
 /** costanti per la termo-igrometria */
-const int DHT_PIN = 6;  // pin per la lettura del sensore di umidità e temperatura dell'aria.
+const int DHT_PIN = 13;  // pin per la lettura del sensore di umidità e temperatura dell'aria.
 #define DHTTYPE DHT11
 DHT dht(DHT_PIN, DHTTYPE);
 TermoIgro air(&dht);
@@ -46,7 +46,7 @@ int SOIL_HUM_THRESHOLD;              // valore limite dell'umidità per innescar
 Moisture moisture(SOIL_HUM_PIN, SOIL_HUM_ENABLE_PIN, &Serial);
 
 /** Controllo la temperatura del terreno */
-const int SOIL_TEMP_PIN = 7;  // DIGITAL pin del sensore di temperatura del terreno DS18B20
+const int SOIL_TEMP_PIN = 12;  // DIGITAL pin del sensore di temperatura del terreno DS18B20
 int SOIL_TEMP_THRESHOLD;      // limite di temperatura per innescare il riscaldamento
 OneWire oneWire(SOIL_TEMP_PIN);
 DallasTemperature ds18b20(&oneWire);  // inizializzazine sensore temperatura terreno
@@ -55,8 +55,8 @@ Geo geo(&ds18b20, &Serial);
 /** Controllo Irrigazione */
 const int PUMP_PIN = 9;        // DIGITAL pin per l'avvio della pompa di irrigazione.
 const int WATERLOCK_PIN = 4;   // DIGITAL segnale per il blocco del'irrigazione
-const int TANK_LEVEL_PIN = 2;  // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio.
-const int SOIL_HEAT_PIN = 10;  // DIGITAL pin per attivare il riscaldamento, collegato al relay
+const int TANK_LEVEL_PIN = 11;  // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio.
+const int SOIL_HEAT_PIN = 2;  // DIGITAL pin per attivare il riscaldamento, collegato al relay
 Soil soil(TANK_LEVEL_PIN, PUMP_PIN, SOIL_HEAT_PIN, &Serial);
 
 /** Potenziometri */
@@ -66,7 +66,7 @@ int SET_THS_LUX = A3;   // pin del potenziometro per l'impostazione della soglia
 
 /** Display LCD*/
 LCD_I2C lcd(0x27, 16, 2);  //SDA => A4: SCL => A5
-const int DSPL_BTN_PIN = 3;
+const int DSPL_BTN_PIN = 5;
 void display_main();
 void display_thresholds();
 void display_lux();
@@ -79,9 +79,9 @@ DagButton displayBtn(DSPL_BTN_PIN, LOW);
 DagTimer displayTimer;
 
 /** LED */
-const int LED_PWR = 13;   // Power Led
-const int LED_PUMP = 11;  // Led per avvsare l'avviamento della pompa di irrigazione. Lampeggia se il serbatoio dell'acqua è vuoto.
-const int LED_HEAT = 12;  // led per avvisare l'accensione del pad di riscaldamento
+const int LED_PWR = 6;   // Power Led
+const int LED_PUMP = 7;  // Led per avvsare l'avviamento della pompa di irrigazione. Lampeggia se il serbatoio dell'acqua è vuoto.
+const int LED_HEAT = 8;  // led per avvisare l'accensione del pad di riscaldamento
 DagTimer ledTimer;
 
 //*********************************************************************************
