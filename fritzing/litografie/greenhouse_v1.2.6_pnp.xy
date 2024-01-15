@@ -1,0 +1,78 @@
+# Pick And Place List
+# Company=
+# Author=
+# eMail=
+#
+# Project=greenhouse_v1.2.6
+# Date=09:07:54
+# CreatedBy=Fritzing 1.0.0rc.2023-06-02.CD-4157-0-6b14cfe9
+#
+#
+# Coordinates in mils, always center of component
+# Origin 0/0=Lower left corner of PCB
+# Rotation in degree (0-360, math. pos.)
+#
+RefDes,Description,Package,X,Y,Rotation,Side,Mount
+Description: resistance;capacitance;inductance;voltage;current;power;mpn;mn;
+Via7,";;;;;;;;","",2689.95,69.9785,0,Top,MANUAL
+R12,"10;;;;;0.25W;;;","THT",339.956,1969.97,90,Top,THT
+Jumper8,";;;;;;;;","",1177.46,2444.97,0,Top,MANUAL
+Via6,";;;;;;;;","",2614.95,3794.98,0,Top,MANUAL
+Jumper10,";;;;;;;;","",2089.96,2457.47,0,Top,MANUAL
+LCDVcc,";;;;;;;;","THT",1464.96,2244.97,0,Top,THT
+L_PWR,";;;;;;;;","THT",1389.96,469.975,90,Top,THT
+DS18B20,";;;;;;;;","THT",2509.96,2249.97,0,Top,THT
+LCDSDA,";;;;;;;;","THT",1464.96,2044.97,0,Top,THT
+Jumper9,";;;;;;;;","",2289.96,2594.97,0,Top,MANUAL
+Q3,";;;;;;;;","TO92 [THT]",1336.46,2727.47,90,Top,THT
+btn_lamp,";;;;;;;;","THT",889.956,469.975,90,Top,THT
+R10,"4.7k;;;;;0.25W;;;","THT",1064.96,2719.97,0,Top,THT
+C12,";300nF;;16V;;;;;","200 mil [THT, multilayer]",389.956,3094.97,180,Top,THT
+C11,";100nF;;16V;;;;;","200 mil [THT, multilayer]",764.956,3094.97,0,Top,THT
+btn_wlk,";;;;;;;;","THT",989.956,469.975,90,Top,THT
+R9,"4.7k;;;;;0.25W;;;","THT",2189.96,2444.97,180,Top,THT
+RELAYS,";;;;;;;;","THT",544.956,449.975,90,Top,THT
+C8,";0.47mF;;16V;;;;;","100 mil [THT, electrolytic]",814.956,3294.97,0,Top,THT
+pot3,";;;;;;;;","THT",1564.96,2644.97,90,Top,THT
+pot2,";;;;;;;;","THT",1664.96,2644.97,90,Top,THT
+LM7805-1,";;;5V;;;;;","TO220 [THT]",974.956,3644.97,90,Top,THT
+TR_L,";;;;;;;;","TO220 [THT]",2429.96,1219.97,-90,Top,THT
+R16,"1k;;;;;0.25W;;;","THT",2339.96,644.975,180,Top,THT
+LM7805-2,";;;5V;;;;;","TO220 [THT]",489.956,2904.97,0,Top,THT
+pot1,";;;;;;;;","THT",1764.96,2644.97,90,Top,THT
+R18,"4.7;;;;;0.25W;;;","THT",539.956,2069.97,-90,Top,THT
+Via9,";;;;;;;;","",139.951,144.979,0,Top,MANUAL
+12V,";;;;;;;;","power_jack_pth",434.392,3515.1,180,Bottom,SMT
+Arduino NANO1,";;;;;;;;","",1090.29,994.975,-90,Top,MANUAL
+YL-70,";;;;;;;;","",1868.85,3222.55,90,Top,MANUAL
+R11,"4.7k;;;;;0.25W;;;","THT",2189.96,2144.97,0,Top,THT
+C10,";1mF;;16V;;;;;","200 mil [THT, electrolytic]",389.956,2544.97,180,Top,THT
+LCDSCL,";;;;;;;;","THT",1464.96,2144.97,0,Top,THT
+AN5V,";;;;;;;;","THT",1964.96,2644.97,90,Top,THT
+DHT11,";;;;;;;;","THT",2509.96,2749.97,0,Top,THT
+C14,";300nF;;16V;;;;;","200 mil [THT, multilayer]",1264.96,3744.97,180,Top,THT
+C13,";100nF;;16V;;;;;","200 mil [THT, multilayer]",1464.96,3594.97,180,Top,THT
+C9,";0.47mF;;16V;;;;;","100 mil [THT, electrolytic]",1714.96,3694.97,-90,Top,THT
+btn_dspl,";;;;;;;;","THT",1089.96,469.975,90,Top,THT
+TANK,";;;;;;;;","THT",1744.96,449.975,90,Top,THT
+Jumper11,";;;;;;;;","",564.956,594.975,0,Top,MANUAL
+Jumper6,";;;;;;;;","",2177.46,1669.97,0,Top,MANUAL
+PHOTO,";;;;;;;;","THT",2509.96,2499.97,0,Top,THT
+R17,"1k;;;;;0.25W;;;","THT",2339.96,944.975,180,Top,THT
+Vcc,";;;;;;;;","THT",1464.96,2344.97,0,Top,THT
+L_HEAT,";;;;;;;;","THT",1289.96,469.975,90,Top,THT
+R14,"10k;;;;;0.25W;;;","THT",2339.96,844.975,180,Top,THT
+Via12,";;;;;;;;","",439.959,594.971,0,Top,MANUAL
+R13,"10;;;;;0.25W;;;","THT",739.956,1969.97,90,Top,THT
+Via10,";;;;;;;;","",739.959,2544.97,0,Top,MANUAL
+TR_P,";;;;;;;;","TO220 [THT]",2429.96,369.975,-90,Top,THT
+R15,"10k;;;;;0.25W;;;","THT",2339.96,744.975,180,Top,THT
+Via11,";;;;;;;;","",689.959,594.971,0,Top,MANUAL
+GND,";;;;;;;;","THT",1864.96,2644.97,90,Top,THT
+Jumper5,";;;;;;;;","",1014.96,2544.97,0,Top,MANUAL
+DZ9v1,";;;;;;;;","diode-zener",479.961,1569.97,0,Top,SMT
+L_PUMP,";;;;;;;;","THT",1189.96,469.975,90,Top,THT
+Pad1,";;;;;;;;","",2640.11,3355.6,90,Bottom,MANUAL
+C7,";100nF;;16V;;;;;","200 mil [THT, multilayer]",539.956,1444.97,180,Top,THT
+Via8,";;;;;;;;","",89.9516,3844.98,0,Top,MANUAL
+Jumper4,";;;;;;;;","",1789.96,957.475,0,Top,MANUAL
