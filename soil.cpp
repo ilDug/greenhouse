@@ -10,7 +10,8 @@ Soil::Soil(int tankLevelPin, int pumpPin, int heatPin, Stream* _srl)
   TANK_LEVEL_PIN = tankLevelPin;
   PUMP_PIN = pumpPin;
   SOIL_HEAT_PIN = heatPin;
-  STATUS = HEALTHY;  // inizializza come in buono stato per prevenire che la pompa si accenda subito.
+  STATUS = HEALTHY;                   // inizializza come in buono stato per prevenire che la pompa si accenda subito.
+  tmr_off.init(wateringTime, false);  // inizializza il timer off  in coerenza con lo stato healthy
 }
 
 
@@ -23,7 +24,7 @@ void Soil::run(Moisture* m, Geo* g) {
   }
 
   //controlla il serbatoio
-  if (isTankEmpty()) STATUS = EMPTY_TANK;
+  STATUS = isTankEmpty() ? EMPTY_TANK : HEALTHY;
 
   switch (STATUS) {
 
