@@ -27,8 +27,8 @@
 /** costanti per l'illuminazione */
 int LUMEN_THRESHOLD;         // valore limite minimo del sensore di luminosità per l'accensione della luce.
 const int LUMEN_PIN = A0;    // pin per la lettura del sensore di luminosità.
-const int LAMP_PIN = 10;      // DIGITAL pin di attivazione della luce, collegato al relay.
-const int LAMP_BTN_PIN = 5;  // DIGITAL pin di attivazione della luce, collegato al relay.
+const int LAMP_PIN = 10;     // DIGITAL pin di attivazione della luce, collegato al relay.
+const int LAMP_BTN_PIN = 3;  // DIGITAL pin di attivazione della luce, collegato al relay.
 Lumen lumen(LAMP_PIN, LUMEN_PIN, &Serial);
 DagButton btnLamp(LAMP_BTN_PIN, LOW);
 
@@ -47,16 +47,16 @@ Moisture moisture(SOIL_HUM_PIN, SOIL_HUM_ENABLE_PIN, &Serial);
 
 /** Controllo la temperatura del terreno */
 const int SOIL_TEMP_PIN = 12;  // DIGITAL pin del sensore di temperatura del terreno DS18B20
-int SOIL_TEMP_THRESHOLD;      // limite di temperatura per innescare il riscaldamento
+int SOIL_TEMP_THRESHOLD;       // limite di temperatura per innescare il riscaldamento
 OneWire oneWire(SOIL_TEMP_PIN);
 DallasTemperature ds18b20(&oneWire);  // inizializzazine sensore temperatura terreno
 Geo geo(&ds18b20, &Serial);
 
 /** Controllo Irrigazione */
-const int PUMP_PIN = 9;        // DIGITAL pin per l'avvio della pompa di irrigazione.
-const int WATERLOCK_PIN = 4;   // DIGITAL segnale per il blocco del'irrigazione
+const int PUMP_PIN = 9;         // DIGITAL pin per l'avvio della pompa di irrigazione.
+const int WATERLOCK_PIN = 4;    // DIGITAL segnale per il blocco del'irrigazione
 const int TANK_LEVEL_PIN = 11;  // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio.
-const int SOIL_HEAT_PIN = 2;  // DIGITAL pin per attivare il riscaldamento, collegato al relay
+const int SOIL_HEAT_PIN = 2;    // DIGITAL pin per attivare il riscaldamento, collegato al relay
 Soil soil(TANK_LEVEL_PIN, PUMP_PIN, SOIL_HEAT_PIN, &Serial);
 
 /** Potenziometri */
@@ -153,9 +153,9 @@ void loop() {
 
 
   /** controllo illuminazione */
-  // lumen.run(LUMEN_THRESHOLD);
-  // btnLamp.onPress(lampToggle);
-  // btnLamp.onLongPress(lampAuto, 3000);
+  lumen.run(LUMEN_THRESHOLD);
+  btnLamp.onPress(lampToggle);
+  btnLamp.onLongPress(lampAuto, 3000);
 
 
   /** controllo termo-igrometria dell'aria*/
@@ -166,10 +166,10 @@ void loop() {
   pages[activePage]();                 // visualizza la pagina attiva
   displayBtn.onPress(display_change);  // quando premuto aumenta il numero della pagina e fa partre il timer di reset
   displayBtn.onLongPress(display_backlight, 2000);
-  displayTimer.run(display_reset);  // resetta la pagina prncipale al termine dell'intervallo di tempo
+  displayTimer.run(display_reset);  // resetta la pagina principale al termine dell'intervallo di tempo
 
   /** led */
-  // ledTimer.run(led_ctrl);
+  ledTimer.run(led_ctrl);
 }
 
 //****************************************************************************
@@ -241,7 +241,8 @@ void display_main() {
   lcd.print("% ");
   lcd.setCursor(9, 0);
   lcd.print(air.temp);
-  lcd.print("\xDF""C");
+  lcd.print("\xDF"
+            "C");
 
   lcd.setCursor(0, 1);  // va a capo
 
@@ -253,7 +254,8 @@ void display_main() {
   lcd.print(m);
   lcd.setCursor(9, 1);
   lcd.print(int(geo.temp));
-  lcd.print("\xDF""C");
+  lcd.print("\xDF"
+            "C");
 }
 
 void display_thresholds() {
