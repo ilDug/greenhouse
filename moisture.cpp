@@ -22,10 +22,10 @@ void Moisture::run(int humThreshold) {
 }
 
 int Moisture::moistureValue() {
-  digitalWrite(ENABLE_PIN, HIGH);
-  delay(1000);  // necessario er inizializzare il sensore
+  digitalWrite(ENABLE_PIN, HIGH);  // accende il sensore
+  delay(1000);                     // necessario er inizializzare il sensore
 
-  int n = 0, i = 0, m = 0, s = 0;
+  int n = 0, i = 0, m = 0, s = 0;  // numero di letture | numero di cicli | media | somma
   while (n <= 10 && i < 16) {
     i++;
     int v = analogRead(SENS_PIN);
@@ -39,7 +39,7 @@ int Moisture::moistureValue() {
   value = m;
   srl->print("<Moisture>: ");
   srl->println(m);
-  digitalWrite(ENABLE_PIN, LOW);
+  digitalWrite(ENABLE_PIN, LOW);  // spegne il sensore
   return m;
 }
 

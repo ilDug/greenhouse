@@ -11,7 +11,7 @@ class Lumen {
 private:
   int LAMP_PIN;          // DIGITAL pin di attivazione della luce
   int SENS_PIN;          // ANALOG pin del sensore di luminosità
-  const int delta = 75;  // delta della soglia per controllare l'isteresi del sensore
+  const int delta = 75;  // delta della soglia per controllare l'isteresi del sensore in bit
   bool isDark(void);     // controlla la luminosità esterna
   int LIGHT_THRESHOLD;   // soglia di luminosità
   int lumenValue(void);  // lettura del valore di luminosità

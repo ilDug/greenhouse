@@ -13,8 +13,8 @@ private:
 
 public:
   TermoIgro(DHT* _dht);  // constructor che prende come argomento la durata del timer
-  int hum = 0;
-  int temp = 0;
+  int hum = 0;           // valore dell'umidità
+  int temp = 0;          // valore di temperature in gradi Celsius
   void listen();
 };
 

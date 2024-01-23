@@ -33,7 +33,7 @@ bool Geo::isCold() {
   switch (STATUS) {
     case COLD:
       // il valore di umidità scende sotto la soglia diminuita del delta.
-      return (geoValue() > (THRESHOLD + delta));
+      return (geoValue() < (THRESHOLD + delta));
 
     case HOT:
       //  il valore di umidità sale sopra la soglia aumentata del delta.

@@ -10,8 +10,8 @@ Soil::Soil(int tankLevelPin, int pumpPin, int heatPin, Stream* _srl)
   TANK_LEVEL_PIN = tankLevelPin;
   PUMP_PIN = pumpPin;
   SOIL_HEAT_PIN = heatPin;
-  STATUS = HEALTHY;                   // inizializza come in buono stato per prevenire che la pompa si accenda subito.
-  tmr_off.init(wateringTime, false);  // inizializza il timer off  in coerenza con lo stato healthy
+  STATUS = HEALTHY;                    // inizializza come in buono stato per prevenire che la pompa si accenda subito.
+  tmr_off.init(wateringPause, false);  // inizializza il timer off  in coerenza con lo stato healthy
 }
 
 
@@ -32,8 +32,8 @@ void Soil::run(Moisture* m, Geo* g) {
       if (waterLock) {                // se è attivo il blocco del'irrigazione
         digitalWrite(PUMP_PIN, LOW);  //spegne la pompa
       } else {
-        if (m->STATUS == WET && tmr_on.clock()) {  // quando il timer scade
-          tmr_off.init(wateringTime, false);       // attiva la pausa in modo che non venga attivata la pompa per permettere la diffusione
+        if (m->STATUS == WET || tmr_on.clock()) {  // quando il terreno è umido, oppure quando il tempo massimo di irrigazione
+          tmr_off.init(wateringPause, false);      // attiva la pausa in modo che non venga attivata la pompa per permettere la diffusione
           digitalWrite(PUMP_PIN, LOW);             //spegne la pompa
           STATUS = HEALTHY;                        // imposta provvisoriamente lo stato in HEALHY  e lo ricontrolla immediatamente
         }
