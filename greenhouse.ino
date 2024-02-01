@@ -60,8 +60,8 @@ const int SOIL_HEAT_PIN = 2;    // DIGITAL pin per attivare il riscaldamento, co
 Soil soil(TANK_LEVEL_PIN, PUMP_PIN, SOIL_HEAT_PIN, &Serial);
 
 /** Potenziometri */
-int SET_THS_TEMP = A1;  // pin del potenziometro per l'impostazione della soglia di temperatura suolo
-int SET_THS_HUM = A2;   // pin del potenziometro per l'impostazione della soglia di umidità terreno
+int SET_THS_TEMP = A2;  // pin del potenziometro per l'impostazione della soglia di temperatura suolo
+int SET_THS_HUM = A1;   // pin del potenziometro per l'impostazione della soglia di umidità terreno
 int SET_THS_LUX = A3;   // pin del potenziometro per l'impostazione della soglia di luminosità
 
 /** Display LCD*/
@@ -79,8 +79,8 @@ DagButton displayBtn(DSPL_BTN_PIN, LOW);
 DagTimer displayTimer;
 
 /** LED */
-const int LED_PWR = 6;   // Power Led
-const int LED_PUMP = 7;  // Led per avvsare l'avviamento della pompa di irrigazione. Lampeggia se il serbatoio dell'acqua è vuoto.
+const int LED_PWR = 7;   // Power Led
+const int LED_PUMP = 6;  // Led per avvsare l'avviamento della pompa di irrigazione. Lampeggia se il serbatoio dell'acqua è vuoto.
 const int LED_HEAT = 8;  // led per avvisare l'accensione del pad di riscaldamento
 DagTimer ledTimer;
 
@@ -130,7 +130,7 @@ void setup() {
   lcd.home();
   lcd.print("DAG Greenhouse");  // messaggio di benvenuto
   lcd.setCursor(0, 1);
-  lcd.print("v0.0.1");
+  lcd.print("v0.0.3");
   delay(3000);
   lcd.clear();
   // lcd.noBacklight();
@@ -139,12 +139,12 @@ void setup() {
 
 void loop() {
   delay(50);
+
   // PROCESSI //
   /** lettura dei potenziometri */
   SOIL_TEMP_THRESHOLD = analogRead(SET_THS_TEMP);
   SOIL_HUM_THRESHOLD = analogRead(SET_THS_HUM);
   LUMEN_THRESHOLD = analogRead(SET_THS_LUX);
-
 
   /** controllo suolo */
   moisture.run(SOIL_HUM_THRESHOLD);
@@ -163,10 +163,10 @@ void loop() {
 
 
   /** display */
-  pages[activePage]();                 // visualizza la pagina attiva
   displayBtn.onPress(display_change);  // quando premuto aumenta il numero della pagina e fa partre il timer di reset
-  displayBtn.onLongPress(display_backlight, 2000);
+  displayBtn.onLongPress(display_backlight, 5000);
   displayTimer.run(display_reset);  // resetta la pagina principale al termine dell'intervallo di tempo
+  pages[activePage]();              // visualizza la pagina attiva
 
   /** led */
   ledTimer.run(led_ctrl);
@@ -214,7 +214,7 @@ void led_ctrl() {
 //******************************************************************************
 void display_change() {
   activePage = activePage >= 4 ? 0 : activePage + 1;
-  displayTimer.init(5000, false);
+  displayTimer.init(20000, false);
 }
 
 void display_reset() {
@@ -226,8 +226,10 @@ void display_backlight() {
   switch (lcd_backlight) {
     case HIGH:
       lcd.backlight();
+      break;
     case LOW:
       lcd.noBacklight();
+      break;
   }
 }
 
@@ -266,9 +268,9 @@ void display_thresholds() {
   lcd.setCursor(0, 1);  // va a capo
 
   lcd.print(LUMEN_THRESHOLD);
-  lcd.setCursor(1, 6);
+  lcd.setCursor(6, 1);
   lcd.print(SOIL_HUM_THRESHOLD);
-  lcd.setCursor(1, 12);
+  lcd.setCursor(12, 1);
   lcd.print(SOIL_TEMP_THRESHOLD);
 }
 
@@ -290,6 +292,12 @@ void display_lux() {
   lcd.home();
 
   lcd.print("LUMEN ");
+  if (lumen.AUTO_MODE) {
+    lcd.print("AUTO ");
+  } else {
+    lcd.print("MAN ");
+  }
+
   lcd.print(lumen.value);
 
   lcd.setCursor(0, 1);  // va a capo

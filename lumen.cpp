@@ -24,8 +24,11 @@ void Lumen::off() {
 
 void Lumen::toggle() {
   AUTO_MODE = false;
-  if (STATUS == LAMP_ON) { STATUS = LAMP_OFF; }
-  else if (STATUS == LAMP_OFF) { STATUS = LAMP_ON; }
+  if (STATUS == LAMP_ON) {
+    STATUS = LAMP_OFF;
+  } else if (STATUS == LAMP_OFF) {
+    STATUS = LAMP_ON;
+  }
 }
 
 
@@ -77,7 +80,7 @@ int Lumen::lumenValue() {
   }
   m = int(s / n);
   value = m;
-  srl->print("<Lumen>: ");
-  srl->println(m);
+  // srl->print("<Lumen>: ");
+  // srl->println(m);
   return m;
 }

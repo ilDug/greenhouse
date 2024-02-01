@@ -16,7 +16,7 @@ void Moisture::run(int humThreshold) {
   THRESHOLD = humThreshold;  // imposta la soglia
 
   if (tmr.clock()) {
-    srl->println("<Moisture> measure.");
+    // srl->println("<Moisture> measure.");
     STATUS = isDry() ? DRY : WET;
   }
 }
