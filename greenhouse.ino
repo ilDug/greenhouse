@@ -58,6 +58,8 @@ const int WATERLOCK_PIN = 4;    // DIGITAL segnale per il blocco del'irrigazione
 const int TANK_LEVEL_PIN = 11;  // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio.
 const int SOIL_HEAT_PIN = 2;    // DIGITAL pin per attivare il riscaldamento, collegato al relay
 Soil soil(TANK_LEVEL_PIN, PUMP_PIN, SOIL_HEAT_PIN, &Serial);
+DagButton waterLockBtn(WATERLOCK_PIN, LOW);
+
 
 /** Potenziometri */
 int SET_THS_TEMP = A2;  // pin del potenziometro per l'impostazione della soglia di temperatura suolo
@@ -82,7 +84,6 @@ DagTimer displayTimer;
 const int LED_PWR = 7;   // Power Led
 const int LED_PUMP = 6;  // Led per avvsare l'avviamento della pompa di irrigazione. Lampeggia se il serbatoio dell'acqua è vuoto.
 const int LED_HEAT = 8;  // led per avvisare l'accensione del pad di riscaldamento
-DagTimer ledTimer;
 
 //*********************************************************************************
 void setup() {
@@ -122,7 +123,6 @@ void setup() {
 
   // accende il power led
   digitalWrite(LED_PWR, HIGH);
-  ledTimer.init(1000);
 
   //LCD
   lcd.begin();      // inizializza LCD
@@ -130,7 +130,7 @@ void setup() {
   lcd.home();
   lcd.print("DAG Greenhouse");  // messaggio di benvenuto
   lcd.setCursor(0, 1);
-  lcd.print("v0.0.3");
+  lcd.print("v0.0.4");
   delay(3000);
   lcd.clear();
   // lcd.noBacklight();
@@ -150,7 +150,7 @@ void loop() {
   moisture.run(SOIL_HUM_THRESHOLD);
   geo.run(SOIL_TEMP_THRESHOLD);
   soil.run(&moisture, &geo);
-
+  waterLockBtn.onPress(lockWater);
 
   /** controllo illuminazione */
   lumen.run(LUMEN_THRESHOLD);
@@ -169,7 +169,7 @@ void loop() {
   pages[activePage]();              // visualizza la pagina attiva
 
   /** led */
-  ledTimer.run(led_ctrl);
+  ledController();
 }
 
 //****************************************************************************
@@ -189,8 +189,12 @@ void termo_igro() {
   air.listen();
 }
 
+void lockWater(){
+  soil.lockWatering();
+}
 
-void led_ctrl() {
+
+void ledController() {
   /** comanda il led dela segnale pompa */
   switch (soil.STATUS) {
     case WATERING:
@@ -241,7 +245,7 @@ void display_main() {
   lcd.print("Air ");
   lcd.print(air.hum);
   lcd.print("% ");
-  lcd.setCursor(9, 0);
+  lcd.setCursor(10, 0);
   lcd.print(air.temp);
   lcd.print("\xDF"
             "C");
@@ -251,10 +255,11 @@ void display_main() {
   //seconda riga
   String g = geo.STATUS == COLD ? "COLD" : (geo.STATUS == HOT ? "HOT" : "---");
   String m = moisture.STATUS == DRY ? "DRY" : (moisture.STATUS == WET ? "WET" : "---");
+  m = soil.waterLock ? "LOCK " : m;
   lcd.print(g);
   lcd.print(" ");
   lcd.print(m);
-  lcd.setCursor(9, 1);
+  lcd.setCursor(10, 1);
   lcd.print(int(geo.temp));
   lcd.print("\xDF"
             "C");
@@ -312,10 +317,11 @@ void display_heat() {
   lcd.home();
 
   lcd.print("HEAT ");
-  lcd.print(map(geo.temp, 0, 35, 0, 1024));
+  lcd.print(geo.temp);
+  // lcd.print(map(geo.temp, 0, 35, 0, 1024));
 
   lcd.setCursor(0, 1);  // va a capo
 
   lcd.print("Threshod ");
-  lcd.print(SOIL_TEMP_THRESHOLD);
+  lcd.print(map(SOIL_TEMP_THRESHOLD, 0, 1024, 0, 35));
 }

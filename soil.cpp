@@ -23,6 +23,9 @@ void Soil::run(Moisture* m, Geo* g) {
     digitalWrite(SOIL_HEAT_PIN, LOW);
   }
 
+  srl->print("geo Stauts: ");
+  srl->println(g->STATUS);
+
   //controlla il serbatoio
   STATUS = isTankEmpty() ? EMPTY_TANK : HEALTHY;
 

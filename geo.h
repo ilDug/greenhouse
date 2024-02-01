@@ -17,7 +17,7 @@ private:
 
   int THRESHOLD;                             // valore limite della temperatura per innescare il riscaldamento.
   int geoValue();                            // valore del sensore in gradi Celsius
-  const int delta = 75;                      // delta dell'umidità per controllare l'isteresi (in bit)
+  const int delta = 3;                      // delta dell'umidità per controllare l'isteresi (in bit)
   const unsigned long frequency = 1000 * 5;  // frequenza di aggiornamento della lettura del sdensore di temperatura
   bool isCold();                             // controlla se il terreno ha bisogno di acqua
 
