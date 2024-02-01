@@ -85,6 +85,7 @@ const int LED_PWR = 7;   // Power Led
 const int LED_PUMP = 6;  // Led per avvsare l'avviamento della pompa di irrigazione. Lampeggia se il serbatoio dell'acqua è vuoto.
 const int LED_HEAT = 8;  // led per avvisare l'accensione del pad di riscaldamento
 
+
 //*********************************************************************************
 void setup() {
   Serial.begin(9600);
@@ -138,7 +139,7 @@ void setup() {
 
 
 void loop() {
-  delay(50);
+  delay(75);
 
   // PROCESSI //
   /** lettura dei potenziometri */

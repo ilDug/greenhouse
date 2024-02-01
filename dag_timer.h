@@ -35,6 +35,10 @@ public:
 
   // esegue la funzione passata come argomento allo scoccare del periodo
   void run(void (*fun)(void));
+
+  // per i timer che non si ripetono ,  indica se è già scoccato almeno un volta
+  bool exhausted();
+
 };
 
 #endif

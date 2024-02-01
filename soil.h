@@ -22,7 +22,7 @@ private:
   int SOIL_HEAT_PIN;   // DIGITAL pin per attivare il riscaldamento
 
   const unsigned long wateringTime = (1000 * 10);  // il tempo minimo per cui la pompa deve rimanere attiva in millisecondi
-  const unsigned long wateringPause = (1000 * 60);  // la pausa tra una irrigazione e l'altra in millisecondi
+  const unsigned long wateringPause = (1000 * 30);  // la pausa tra una irrigazione e l'altra in millisecondi
   bool isTankEmpty();
 
 public:

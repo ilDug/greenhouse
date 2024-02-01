@@ -42,3 +42,8 @@ bool DagTimer::clock() {
 
   return res;
 }
+
+bool DagTimer::exhausted() {
+  unsigned long dt = (millis() - bookmark);
+  return (dt > duration);
+}
