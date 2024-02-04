@@ -4,7 +4,6 @@
  * dag-greenhouse
  * copyright 2023
 */
-
 #include "dag_timer.h"
 #include "dag_button.h"
 #include "soil.h"
@@ -108,7 +107,7 @@ void setup() {
   /** ILLUMIAZIONE */
   // pinMode(LUMEN_PIN, INPUT);
   pinMode(LAMP_PIN, OUTPUT);
-  digitalWrite(LAMP_PIN, LOW); // inizializza con luce spenta
+  digitalWrite(LAMP_PIN, LOW);  // inizializza con luce spenta
 
   /** TEMPERATURA DEL TERRENO*/
   pinMode(SOIL_TEMP_PIN, INPUT);
@@ -133,7 +132,7 @@ void setup() {
   lcd.home();
   lcd.print("DAG Greenhouse");  // messaggio di benvenuto
   lcd.setCursor(0, 1);
-  lcd.print("v0.0.5");
+  lcd.print("v0.0.6");
   delay(3000);
   lcd.clear();
   // lcd.noBacklight();
@@ -145,9 +144,9 @@ void loop() {
 
   // PROCESSI //
   /** lettura dei potenziometri (inverte i valori per rispettare il senso della rotella)*/
-  SOIL_TEMP_THRESHOLD = map(analogRead(SET_THS_TEMP), 0,1024, 1024, 0);
-  SOIL_HUM_THRESHOLD = map(analogRead(SET_THS_HUM), 0,1024, 1024, 0);
-  LUMEN_THRESHOLD = map(analogRead(SET_THS_LUX), 0,1024, 1024, 0);
+  SOIL_TEMP_THRESHOLD = map(analogRead(SET_THS_TEMP), 0, 1024, 1024, 0);
+  SOIL_HUM_THRESHOLD = map(analogRead(SET_THS_HUM), 0, 1024, 1024, 0);
+  LUMEN_THRESHOLD = map(analogRead(SET_THS_LUX), 0, 1024, 1024, 0);
 
   /** controllo suolo */
   moisture.run(SOIL_HUM_THRESHOLD);
@@ -194,7 +193,7 @@ void termo_igro() {
   air.listen();
 }
 
-void lockWater(){
+void lockWater() {
   soil.lockWatering();
 }
 
@@ -265,7 +264,9 @@ void display_main() {
   lcd.print(" ");
   lcd.print(m);
   lcd.setCursor(10, 1);
-  lcd.print(int(geo.temp));
+  char t[8] ;
+  dtostrf(geo.temp, 3, 1 ,t); //arrotonda al primo decimale e lo passa nella variabile t
+  lcd.print(t);  // cambiare float con int per avere la lettura arrotondata all'intero
   lcd.print("\xDF"
             "C");
 }
