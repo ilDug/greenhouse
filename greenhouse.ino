@@ -98,7 +98,8 @@ void setup() {
   pinMode(WATERLOCK_PIN, INPUT_PULLUP);
   pinMode(TANK_LEVEL_PIN, INPUT_PULLUP);
   pinMode(SOIL_HEAT_PIN, OUTPUT);
-
+  digitalWrite(SOIL_HEAT_PIN, HIGH); // inizializza il relay di riscaldamento altrimenti si accende subito
+  
   /** UMIDITÀ DEL TERRENO */
   pinMode(SOIL_HUM_PIN, INPUT);
   pinMode(SOIL_HUM_ENABLE_PIN, OUTPUT);
@@ -132,7 +133,7 @@ void setup() {
   lcd.home();
   lcd.print("DAG Greenhouse");  // messaggio di benvenuto
   lcd.setCursor(0, 1);
-  lcd.print("v0.0.6");
+  lcd.print("v0.0.8");
   delay(3000);
   lcd.clear();
   // lcd.noBacklight();
@@ -215,7 +216,7 @@ void ledController() {
   }
 
   /** comanda il led del pad di riscaldamento*/
-  digitalWrite(LED_HEAT, digitalRead(SOIL_HEAT_PIN));
+  digitalWrite(LED_HEAT, !digitalRead(SOIL_HEAT_PIN));
 }
 
 
@@ -264,9 +265,9 @@ void display_main() {
   lcd.print(" ");
   lcd.print(m);
   lcd.setCursor(10, 1);
-  char t[8] ;
-  dtostrf(geo.temp, 3, 1 ,t); //arrotonda al primo decimale e lo passa nella variabile t
-  lcd.print(t);  // cambiare float con int per avere la lettura arrotondata all'intero
+  char t[8];
+  dtostrf(geo.temp, 3, 1, t);  //arrotonda al primo decimale e lo passa nella variabile t
+  lcd.print(t);                // cambiare float con int per avere la lettura arrotondata all'intero
   lcd.print("\xDF"
             "C");
 }

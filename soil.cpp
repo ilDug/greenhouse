@@ -17,12 +17,8 @@ Soil::Soil(int tankLevelPin, int pumpPin, int heatPin, Stream* _srl)
 
 void Soil::run(Moisture* m, Geo* g) {
   // controller del pad riscaldante
-  digitalWrite(SOIL_HEAT_PIN, (g->STATUS == COLD));
-  // if (g->STATUS == COLD) {
-  //   digitalWrite(SOIL_HEAT_PIN, HIGH);
-  // } else if (g->STATUS == HOT) {
-  //   digitalWrite(SOIL_HEAT_PIN, LOW);
-  // }
+  digitalWrite(SOIL_HEAT_PIN, !(g->STATUS == COLD)); // inverte il valore perchè il relay si spegne quando è HIGH
+
 
   //controlla il serbatoio
   STATUS = isTankEmpty() ? EMPTY_TANK : STATUS;
