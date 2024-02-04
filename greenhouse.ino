@@ -9,7 +9,7 @@
 #include "dag_button.h"
 #include "soil.h"
 #include "moisture.h"
-#include "lumen.h"
+// #include "lumen.h"
 #include "air.h"
 #include "geo.h"
 
@@ -29,7 +29,7 @@ int LUMEN_THRESHOLD;         // valore limite minimo del sensore di luminosità 
 const int LUMEN_PIN = A0;    // pin per la lettura del sensore di luminosità.
 const int LAMP_PIN = 10;     // DIGITAL pin di attivazione della luce, collegato al relay.
 const int LAMP_BTN_PIN = 3;  // DIGITAL pin di attivazione della luce, collegato al relay.
-Lumen lumen(LAMP_PIN, LUMEN_PIN, &Serial);
+// Lumen lumen(LAMP_PIN, LUMEN_PIN, &Serial);
 DagButton btnLamp(LAMP_BTN_PIN, LOW);
 
 /** costanti per la termo-igrometria */
@@ -103,10 +103,12 @@ void setup() {
   /** UMIDITÀ DEL TERRENO */
   pinMode(SOIL_HUM_PIN, INPUT);
   pinMode(SOIL_HUM_ENABLE_PIN, OUTPUT);
+  // digitalWrite(SOIL_HUM_ENABLE_PIN, HIGH);
 
   /** ILLUMIAZIONE */
-  pinMode(LUMEN_PIN, INPUT);
+  // pinMode(LUMEN_PIN, INPUT);
   pinMode(LAMP_PIN, OUTPUT);
+  digitalWrite(LAMP_PIN, LOW); // inizializza con luce spenta
 
   /** TEMPERATURA DEL TERRENO*/
   pinMode(SOIL_TEMP_PIN, INPUT);
@@ -131,7 +133,7 @@ void setup() {
   lcd.home();
   lcd.print("DAG Greenhouse");  // messaggio di benvenuto
   lcd.setCursor(0, 1);
-  lcd.print("v0.0.4");
+  lcd.print("v0.0.5");
   delay(3000);
   lcd.clear();
   // lcd.noBacklight();
@@ -142,19 +144,20 @@ void loop() {
   delay(75);
 
   // PROCESSI //
-  /** lettura dei potenziometri */
-  SOIL_TEMP_THRESHOLD = analogRead(SET_THS_TEMP);
-  SOIL_HUM_THRESHOLD = analogRead(SET_THS_HUM);
-  LUMEN_THRESHOLD = analogRead(SET_THS_LUX);
+  /** lettura dei potenziometri (inverte i valori per rispettare il senso della rotella)*/
+  SOIL_TEMP_THRESHOLD = map(analogRead(SET_THS_TEMP), 0,1024, 1024, 0);
+  SOIL_HUM_THRESHOLD = map(analogRead(SET_THS_HUM), 0,1024, 1024, 0);
+  LUMEN_THRESHOLD = map(analogRead(SET_THS_LUX), 0,1024, 1024, 0);
 
   /** controllo suolo */
   moisture.run(SOIL_HUM_THRESHOLD);
   geo.run(SOIL_TEMP_THRESHOLD);
   soil.run(&moisture, &geo);
+  // digitalWrite(PUMP_PIN, LOW);
   waterLockBtn.onPress(lockWater);
 
   /** controllo illuminazione */
-  lumen.run(LUMEN_THRESHOLD);
+  // lumen.run(LUMEN_THRESHOLD);
   btnLamp.onPress(lampToggle);
   btnLamp.onLongPress(lampAuto, 3000);
 
@@ -176,13 +179,14 @@ void loop() {
 //****************************************************************************
 /** accende e spegne la lampada */
 void lampToggle() {
-  lumen.toggle();
+  // lumen.toggle();
+  digitalWrite(LAMP_PIN, !digitalRead(LAMP_PIN));
 }
 
 
 /** attiva l'auto mode della lampada*/
 void lampAuto() {
-  lumen.AUTO_MODE = true;
+  // lumen.AUTO_MODE = true;
 }
 
 /** esegue le letture dei parametri dell'aria*/
@@ -298,13 +302,13 @@ void display_lux() {
   lcd.home();
 
   lcd.print("LUMEN ");
-  if (lumen.AUTO_MODE) {
-    lcd.print("AUTO ");
-  } else {
-    lcd.print("MAN ");
-  }
+  // if (lumen.AUTO_MODE) {
+  //   lcd.print("AUTO ");
+  // } else {
+  //   lcd.print("MAN ");
+  // }
 
-  lcd.print(lumen.value);
+  // lcd.print(lumen.value);
 
   lcd.setCursor(0, 1);  // va a capo
 

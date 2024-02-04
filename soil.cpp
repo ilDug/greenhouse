@@ -12,18 +12,17 @@ Soil::Soil(int tankLevelPin, int pumpPin, int heatPin, Stream* _srl)
   SOIL_HEAT_PIN = heatPin;
   STATUS = HEALTHY;                    // inizializza come in buono stato per prevenire che la pompa si accenda subito.
   tmr_off.init(wateringPause, false);  // inizializza il timer off  in coerenza con lo stato healthy
-  tmr_on.init(wateringTime, false);
 }
 
 
 void Soil::run(Moisture* m, Geo* g) {
   // controller del pad riscaldante
-  if (g->STATUS == COLD) {
-    digitalWrite(SOIL_HEAT_PIN, HIGH);
-  } else if (g->STATUS == HOT) {
-    digitalWrite(SOIL_HEAT_PIN, LOW);
-  }
-
+  digitalWrite(SOIL_HEAT_PIN, (g->STATUS == COLD));
+  // if (g->STATUS == COLD) {
+  //   digitalWrite(SOIL_HEAT_PIN, HIGH);
+  // } else if (g->STATUS == HOT) {
+  //   digitalWrite(SOIL_HEAT_PIN, LOW);
+  // }
 
   //controlla il serbatoio
   STATUS = isTankEmpty() ? EMPTY_TANK : STATUS;
@@ -36,9 +35,9 @@ void Soil::run(Moisture* m, Geo* g) {
         digitalWrite(PUMP_PIN, LOW);  //spegne la pompa
       } else {
         if (m->STATUS == WET || tmr_on.exhausted()) {  // quando il terreno è umido, oppure quando il tempo massimo di irrigazione
-          tmr_off.init(wateringPause, false);      // attiva la pausa in modo che non venga attivata la pompa per permettere la diffusione
-          digitalWrite(PUMP_PIN, LOW);             //spegne la pompa
-          STATUS = HEALTHY;                        // imposta provvisoriamente lo stato in HEALHY  e lo ricontrolla immediatamente
+          tmr_off.init(wateringPause, false);          // attiva la pausa in modo che non venga attivata la pompa per permettere la diffusione
+          digitalWrite(PUMP_PIN, LOW);                 //spegne la pompa
+          STATUS = HEALTHY;                            // imposta provvisoriamente lo stato in HEALHY  e lo ricontrolla immediatamente
         }
       }
       break;
@@ -48,16 +47,16 @@ void Soil::run(Moisture* m, Geo* g) {
         digitalWrite(PUMP_PIN, LOW);  //spegne la pompa
       } else {
         if (m->STATUS == DRY && tmr_off.exhausted()) {  // accende la pompa solo se è passato il periodo di pausa
-          tmr_on.init(wateringTime, false);         //inizzializza il timer eseguito una volta sola
-          digitalWrite(PUMP_PIN, HIGH);             //accende la pompa
-          STATUS = WATERING;                        // imposta lo stato in irrigazione
+          tmr_on.init(wateringTime, false);             //inizzializza il timer eseguito una volta sola
+          digitalWrite(PUMP_PIN, HIGH);                 //accende la pompa
+          STATUS = WATERING;                            // imposta lo stato in irrigazione
         }
       }
       break;
 
     case EMPTY_TANK:
       digitalWrite(PUMP_PIN, LOW);  //se il serbatoio è vuoto,  interrompe l'irrigazione
-      // ACCENDE l'allarme
+      STATUS = isTankEmpty() ? EMPTY_TANK : HEALTHY;
       break;
   }
 }

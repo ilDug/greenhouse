@@ -14,7 +14,6 @@ void Geo::run(int tempThreshold) {
   THRESHOLD = map(tempThreshold, 0, 1024, 0, 35);  // imposta la soglia
 
   if (tmr.clock()) {
-    // srl->println("<Geo> measure.");
     STATUS = isCold() ? COLD : HOT;
   }
 }

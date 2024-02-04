@@ -6,8 +6,8 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
-enum GEO_STATES { COLD,   // terreno freddo
-                  HOT };  // terreno sufficientemente CALDO
+enum GEO_STATES { HOT,   // terreno freddo
+                  COLD };  // terreno sufficientemente CALDO
 
 class Geo {
 private:
@@ -17,8 +17,8 @@ private:
 
   int THRESHOLD;                             // valore limite della temperatura per innescare il riscaldamento.
   int geoValue();                            // valore del sensore in gradi Celsius
-  const int delta = 3;                      // delta dell'umidità per controllare l'isteresi (in bit)
-  const unsigned long frequency = 1000 * 5;  // frequenza di aggiornamento della lettura del sdensore di temperatura
+  const float delta = 0.5;                      // delta dell'umidità per controllare l'isteresi (in bit)
+  const unsigned long frequency = 1000 * 3;  // frequenza di aggiornamento della lettura del sdensore di temperatura
   bool isCold();                             // controlla se il terreno ha bisogno di acqua
 
 public:

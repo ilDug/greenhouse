@@ -9,7 +9,7 @@ void TermoIgro::listen() {
   // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
 
-    int hn = 0, tn = 0, i = 0;  // numero leture  di umidità,  temperatura e totali
+    int hn = 0, tn = 0, i = 0;  // numero letture  di umidità, temperatura e totali
     float hs = 0, ts = 0;       // somma delle leture
     float _h, _t;               // lettura istantanea
 

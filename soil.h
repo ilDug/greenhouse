@@ -22,7 +22,7 @@ private:
   int SOIL_HEAT_PIN;   // DIGITAL pin per attivare il riscaldamento
 
   const unsigned long wateringTime = (1000 * 10);  // il tempo minimo per cui la pompa deve rimanere attiva in millisecondi
-  const unsigned long wateringPause = (1000 * 30);  // la pausa tra una irrigazione e l'altra in millisecondi
+  const unsigned long wateringPause = (1000 * 10);  // la pausa tra una irrigazione e l'altra in millisecondi
   bool isTankEmpty();
 
 public:
@@ -30,7 +30,7 @@ public:
   void run(Moisture* m, Geo* g);                                   // avvia il controller del suolo. impostando la soglia di umidità e la soglia di temperatura.
   WATERING_STATES STATUS;                                          //variabile che salva lo stato della TEMPERATURA
 
-  bool waterLock = false;  // se impostato il blocco , impedisce l'irrigazione
+  bool waterLock = true;  // se impostato il blocco , impedisce l'irrigazione
   void lockWatering();     // imposta il blocco della pompa di irrigazione in base al valore passato.
 };
 

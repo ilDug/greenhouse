@@ -8,6 +8,7 @@ Lumen::Lumen(int lampPin, int sensorPin, Stream *_srl)
   SENS_PIN = sensorPin;
   srl = _srl;
   t.init(1000);
+  STATUS = LAMP_OFF;
 }
 
 
