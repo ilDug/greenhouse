@@ -21,17 +21,17 @@ private:
   int TANK_LEVEL_PIN;  // DIGITAL pin per la lettura del segnale di livello minimo dell'acqua del serbatoio. (HIGH => empty?????)
   int SOIL_HEAT_PIN;   // DIGITAL pin per attivare il riscaldamento
 
-  const unsigned long wateringTime = (1000 * 30);  // il tempo minimo per cui la pompa deve rimanere attiva in millisecondi
+  int unsigned long wateringTime = (1000 * 30);    // il tempo minimo per cui la pompa deve rimanere attiva in millisecondi
   const unsigned long wateringPause = (1000 * 5);  // la pausa tra una irrigazione e l'altra in millisecondi
   bool isTankEmpty();
 
 public:
   Soil(int tankLevelPin, int pumpPin, int heatPin, Stream* _srl);  // constructor
-  void run(Moisture* m, Geo* g);                                   // avvia il controller del suolo. impostando la soglia di umidità e la soglia di temperatura.
+  void run(Moisture* m, Geo* g, int wt);                           // avvia il controller del suolo. impostando la soglia di umidità e la soglia di temperatura.
   WATERING_STATES STATUS;                                          //variabile che salva lo stato della TEMPERATURA
 
   bool waterLock = true;  // se impostato il blocco , impedisce l'irrigazione
-  void lockWatering();     // imposta il blocco della pompa di irrigazione in base al valore passato.
+  void lockWatering();    // imposta il blocco della pompa di irrigazione in base al valore passato.
 };
 
 #endif

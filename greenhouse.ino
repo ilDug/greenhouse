@@ -98,8 +98,8 @@ void setup() {
   pinMode(WATERLOCK_PIN, INPUT_PULLUP);
   pinMode(TANK_LEVEL_PIN, INPUT_PULLUP);
   pinMode(SOIL_HEAT_PIN, OUTPUT);
-  digitalWrite(SOIL_HEAT_PIN, HIGH); // inizializza il relay di riscaldamento altrimenti si accende subito
-  
+  digitalWrite(SOIL_HEAT_PIN, HIGH);  // inizializza il relay di riscaldamento altrimenti si accende subito
+
   /** UMIDITÀ DEL TERRENO */
   pinMode(SOIL_HUM_PIN, INPUT);
   pinMode(SOIL_HUM_ENABLE_PIN, OUTPUT);
@@ -133,7 +133,7 @@ void setup() {
   lcd.home();
   lcd.print("DAG Greenhouse");  // messaggio di benvenuto
   lcd.setCursor(0, 1);
-  lcd.print("v0.0.8");
+  lcd.print("v0.1.8");
   delay(3000);
   lcd.clear();
   // lcd.noBacklight();
@@ -147,12 +147,12 @@ void loop() {
   /** lettura dei potenziometri (inverte i valori per rispettare il senso della rotella)*/
   SOIL_TEMP_THRESHOLD = map(analogRead(SET_THS_TEMP), 0, 1024, 1024, 0);
   SOIL_HUM_THRESHOLD = map(analogRead(SET_THS_HUM), 0, 1024, 1024, 0);
-  LUMEN_THRESHOLD = map(analogRead(SET_THS_LUX), 0, 1024, 1024, 0);
+  LUMEN_THRESHOLD = map(analogRead(SET_THS_LUX), 0, 1024, 120, 0);
 
   /** controllo suolo */
   moisture.run(SOIL_HUM_THRESHOLD);
   geo.run(SOIL_TEMP_THRESHOLD);
-  soil.run(&moisture, &geo);
+  soil.run(&moisture, &geo, LUMEN_THRESHOLD);
   // digitalWrite(PUMP_PIN, LOW);
   waterLockBtn.onPress(lockWater);
 
@@ -276,7 +276,7 @@ void display_thresholds() {
   lcd.clear();
   lcd.home();
 
-  lcd.print("Lux  Moist  Heat");
+  lcd.print("W.T.  Moist  Heat");
   lcd.setCursor(0, 1);  // va a capo
 
   lcd.print(LUMEN_THRESHOLD);
@@ -303,7 +303,7 @@ void display_lux() {
   lcd.clear();
   lcd.home();
 
-  lcd.print("LUMEN ");
+  lcd.print("WATERING TIME");
   // if (lumen.AUTO_MODE) {
   //   lcd.print("AUTO ");
   // } else {
@@ -314,7 +314,7 @@ void display_lux() {
 
   lcd.setCursor(0, 1);  // va a capo
 
-  lcd.print("Threshod ");
+  lcd.print("Secondi ");
   lcd.print(LUMEN_THRESHOLD);
 }
 

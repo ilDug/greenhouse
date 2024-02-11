@@ -15,7 +15,8 @@ Soil::Soil(int tankLevelPin, int pumpPin, int heatPin, Stream* _srl)
 }
 
 
-void Soil::run(Moisture* m, Geo* g) {
+void Soil::run(Moisture* m, Geo* g, int wt) {
+  wateringTime = wt * 1000;
   // controller del pad riscaldante
   digitalWrite(SOIL_HEAT_PIN, !(g->STATUS == COLD)); // inverte il valore perchè il relay si spegne quando è HIGH
 
